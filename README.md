@@ -36,7 +36,7 @@ table params = {
     int m_playerID = {},                            // Optional, Filter for player_id
     int m_teamID = {},                              // Optional, Filter for team_id
     string m_unitType = {}                          // Optional, Filter for unit type
-    string m_location = {},                         // Required, location to get units from
+    string m_location = {},                         // Optional, location to get units from
     BoundsCheck m_boundsCheck = BoundsCheck.Center  // Optional, used if m_location is set. (default = Center)
     bool m_bIncludeAirUnits = true,                 // Optional, Set to false if you want to exclude air units
     bool m_bIncludeGroundUnits = true               // Optional, set to false if you want to exclude ground units
@@ -56,6 +56,8 @@ foreach (unit in the_units) {
     gx_kill_unit(unit)
 }
 ```
+
+- If m_location is not set, will grab units from entire map.
 
 # gx_get_unit_count
 ```c
@@ -277,9 +279,8 @@ table params = {
 ```
 
 Example
-```
-// display chat message 'Hellow World!' to player 3
-gx_print("Hello World!", {m_playerID = 3})
+```c
+gx_print("Hello World!", { m_playerID = 3 } ) // display chat message 'Hello World!' to player 3
 ```
 
 - outputs text to game chat
@@ -362,7 +363,7 @@ Example:
 gx_copy_ud("Brute", "_BabyBrute")
 ```
 - new unit type name MUST begin with `_`. This is to prevent naming collisions for future added official units.
-- this function will be a no-op if new_unit_type name does not begin with `_`
+- this function will be a no-op if `new_unit_type` name does not begin with `_`
 - `ud` is short for `unit_definition` 
 - this function can only be called in the `gx_map_init` stage
 - any attempt to call this outside of the `gx_map_init` will be ignored.
