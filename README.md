@@ -1,69 +1,164 @@
-DriftScript API
-
-int gx_get_sim_tick()
-
+# `int gx_create_unit(table params)`
+```c
 int gx_create_unit(table params)
+```
+```c
+table params = {
+    string m_unitType = {}          # Required
+    int m_playerID = {},            # Required
+    Vec2 m_position = {},           # Optional
+    std::string m_location = {}     # Optional
+}
+```
 
-ints gx_get_units_at_location(str locationName)
+```c
+local new_unit = gx_create_unit({ m_unitType = "Brute", m_playerID=1, m_location="my_cool_location" })
+```
 
+- Will create unit of type `m_unitType` at position `m_position` or at location `m_location` for player `m_playerID`.
+- It is undefined behavior to have both `m_position` and `m_location` set.
+- If neither `m_position` nor `m_location` is set, unit will be created at `(0, 0)`
+
+# `int gx_get_sim_tick()`
+```c
+int gx_get_sim_tick()
+```
+- Returns the current sim tick number in simulation.
+- The first `gx_update` call will have tick = 1
+- every tick corresponds to 50ms real time
+
+# `int[] gx_get_units_at_location(table params = {})`
+```c
+int[] gx_get_units_at_location(table params)
+```
+```c
+table params = {
+    string m_location = {}, # Required, location to get units from
+    string m_unitType = {}  # Optional, Filter for unit type
+    int m_playerID = {},    # Optional, Filter for player_id
+    int m_teamID = {},      # Optional, Filter for team_id
+    bool m_bReturnAirUnits = true,      # Optional, Set to false if you want to exclude air units
+    bool m_bReturnGroundUnits = true    # Optional, set to false if you want to exclude ground units
+}
+```
+Example:
+```c
+local the_units = gx_get_units_at_location({
+    m_location = "my_cool_location",
+    m_unitType = "Brute",
+    m_playerID=1
+})
+foreach (unit in the_units) {
+    gx_kill_unit(unit)
+}
+```
+
+# `void gx_create_explosion(table params)`
+```c
 void gx_create_explosion(table params)
+```
 
-void gx_kill_unit(int unit_id)
+```c
+table params = {
+    float m_size = {},              # Optional, Diameter of explosion
+    Vec3 m_color = Vec3(1,1,0)      # Optional, ColorSRGB of explosion.
+    std::string m_location = {},    # Optional, Location for explosion
+    Vec2 m_pos2d = {}               # Optional, Position for explosion
+}
+```
 
-bool gx_unit_exists(int unit_id)
+Example:
+```
+gx_create_explosion( {
+    m_color = Vec3(1, 0, .5),
+    m_location = "my_location"
+} )
+```
 
-void gx_remove_unit(int unit_id)
+- it is undefined behavior to set both `m_location` and `m_pos2d`
+- if `m_size` is not set and `m_location` is set, the resolved size will be the minimum width/height of `m_location`
+- if `m_size` is not set and `m_pos2d` is set, the resolved size will be `1`
+- Default value for `m_color` is `Vec3(1,1,0)` aka `0xFFFF00` (yellow)
 
-bool gx_is_unit_alive_and_constructed(unit_id)
-    
-bool gx_is_unit_alive(unit_id)
+# `void gx_kill_unit(int unitID)`
+```c
+void gx_kill_unit(int unitID)
+```
 
-vec2 gx_get_unit_position(unit_id)
+- kills the unit `unitID`.
+- It is safe to call this function on already killed units
 
-void get_set_unit_position(int unitID, table params)
+# `bool gx_unit_exists(int unitID)`
+```c
+bool gx_unit_exists(int unitID)
+```
 
-bool gx_is_ground_unit(unit_id)
+- checks if unit still exists in the game
+- Note: this will still return `true` if unit is killed but not yet removed, since some units may not be removed immediately (i.e. they have a death animation)
 
-bool gx_is_air_unit(unit_id)
+# `void gx_remove_unit(int unitID)`
+```c
+void gx_remove_unit(int unitID)
+```
 
-int get_player_id(unit_id)
+- sets the unit to be removed by game
+- `unit_id` will be removed from game before the next gx_update call
+- It is safe to call this function on already killed or removed units
 
-void gx_set_player_gemstone(player, gemstone)
+# `bool gx_is_unit_alive_and_constructed(int unitID)`
+```c
+bool gx_is_unit_alive_and_constructed(int unitID)
+```
+- returns `true` if unit is alive and constructed
 
-void gx_set_player_fungus(player, fungus)
+# `bool gx_is_unit_alive(int unitID)`
+```c
+bool gx_is_unit_alive(int unitID)
+```
+- returns `true` if unit is alive
+- Note: This function still returns `true` if unit is not yet fully constructed
 
-void gx_add_player_gemstone(player, gemstone)
+# `vec2 gx_get_unit_position(int unitID)`
+```c
+vec2 gx_get_unit_position(int unitID)
+```
 
-void gx_add_player_fungus(player, fungus)
+- returns position of unit
+- returns Vec2(0, 0) if unit no longer exists
 
-int gx_get_player_gemstone(player)
+# `void gx_set_unit_position(int unitID, table params)`
+```c
+void gx_set_unit_position(int unitID, table params)
+```
 
-int gx_get_player_fungus(player)
+```c
+table params = {
+    string m_location = {}, # Optional, location to put unit
+    Vec2 m_pos2d = {}  # Optional, position to put unit
+}
+```
+example
+```c
+gx_set_unit_position(some_unit, { m_location = "location_to_teleport_to" } )
+```
 
-int gx_get_player_supply(player)
+- it is undefined to set both `m_location` and `m_pos2d`
+- if neither is defined, unit will be teleported to Vec2(0, 0)
 
-int gx_set_achievement_for_player(player, achievementID)
+# `bool gx_is_ground_unit(int unitID)`
+```c
+bool gx_is_ground_unit(int unitID)
+```
+- returns if unit is currently a `ground` unit
+- units are always in either the `ground` or `air` state
+- note: knock-back effect can cause `ground` units to temporarily become `air` units
+- equivalent to calling `!gx_is_air_unit(unitID)`
 
-void gx_output_text(text)
-
-ids gx_get_players_in_game()
-
-void gx_ud_copy(name, newName)
-
-void gx_fling_unit(unit, params)
-
-vec2 gx_get_location_position(locationName)
-
-int gx_get_unit_count_for_player(player_id, params)
-
-void gx_teleport_unit(unit, params)
-
-string gx_encode_text(string text)
-
-void gx_set_defeat(table params)
-
-void gx_set_victory(table params)
-
-void gx_modify_ud_props(string unitName, table params)
-
-void gx_print(string msg, table params = {})
+# `bool gx_is_air_unit(unit_id)`
+```c
+bool gx_is_air_unit(int unitID)
+```
+- returns if unit is currently an `air` unit
+- units are always in either the `ground` or `air` state
+- note: knock-back effect can cause `ground` units to temporarily become `air` units
+- equivalent to calling `!gx_is_ground_unit(unitID)`
