@@ -356,12 +356,12 @@ The UnitProps enum is used in `gx_get_unit_prop` and `gx_set_unit_prop`
 ```c
 enum UnitProps
 {
-	MaxHealth = 1,
-	Health = 2,
-	MaxSpeed = 3,
-	Size = 4,
-	UnitType = 5,
-    IsOnFire = 6
+	MaxHealth = 1,  // Read-Only
+	Health = 2,     // Read / Write
+	MaxSpeed = 3,   // Read-Only
+	Size = 4,       // Read-Only
+	UnitType = 5,   // Read-Only
+    IsOnFire = 6    // Read-Only
 }
 ```
 - NOTE: Do not rely on enum values to remain the same.
@@ -373,12 +373,12 @@ The PlayerProps enum is used in `gx_get_player_prop` and `gx_set_player_prop`
 ```c
 enum PlayerProps
 {
-	Fungus = 1,
-	Gemstone = 2,
-	Supply = 3,
-	MaxSupply = 4,
-	NumKills = 5,
-	NumDeaths = 6
+	Fungus = 1,     // Read / Write
+	Gemstone = 2,   // Read / Write
+	Supply = 3,     // Read-Only
+	MaxSupply = 4,  // Read-Only
+	NumKills = 5,   // Read-Only
+	NumDeaths = 6   // Read-Only
 }
 ```
 - NOTE: Do not rely on enum values to remain the same.
@@ -468,12 +468,12 @@ table params = {
 ```c
 enum LocationProps
 {
-	TopLeft = 1,
-	TopRight = 2,
-	BottomLeft = 3,
-	BottomRight = 4,
-	Center = 5,
-	Size = 6
+	TopLeft = 1,        // Currently Read-Only
+	TopRight = 2,       // Currently Read-Only
+	BottomLeft = 3,     // Currently Read-Only
+	BottomRight = 4,    // Currently Read-Only
+	Center = 5,         // Currently Read-Only
+	Size = 6            // Currently Read-Only
 }
 ```
 - Used in `gx_get_location_prop` and `gx_set_location_prop`
@@ -487,12 +487,12 @@ enum TerrainTypes
 	Glow = 1,           // valid secondary types are [0 - 31]
 	Water = 2,          // valid secondary types are [0 - 2]
 	Lava = 3,           // valid secondary types are [0 - 2]
-	Diamond = 4,        // valid secondary types are [0 - 1]. (0 = Normal, 1 = Cracked)
+	Diamond = 4,        // valid secondary types is just 0 (TODO: verify, 1 might be valid as well)
 	PlayerColor = 8,    // valid secondary types are [1 - 16] (i.e. player_id)
-	Unpassable = 9,     // !! Not a dynamic terrain type! Cannot dynamically change or be set to.
+	Unpassable = 9,     // !! Not a dynamic terrain type! Cannot dynamically change or be set to!
 	Space = 10,         // valid secondary type is just 0
-	CliffClosed = 14,    // !! Not a dynamic terrain type! Cannot dynamically change or be set to.
-	CliffBorder = 15     // !! Not a dynamic terrain type! Cannot dynamically change or be set to.
+	CliffClosed = 14,   // !! Not a dynamic terrain type! Cannot dynamically change or be set to!
+	CliffBorder = 15    // !! Not a dynamic terrain type! Cannot dynamically change or be set to!
 }
 ```
 - Used in `gx_set_terrain_type` and `gx_get_terrain_type`
