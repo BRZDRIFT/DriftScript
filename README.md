@@ -1,13 +1,13 @@
-# `int gx_create_unit(table params)`
+# gx_create_unit
 ```c
-int gx_create_unit(table params)
+int gx_create_unit(map params)
 ```
 ```c
-table params = {
-    string m_unitType = {}          # Required
-    int m_playerID = {},            # Required
-    Vec2 m_position = {},           # Optional
-    std::string m_location = {}     # Optional
+map params = {
+    string m_unitType = {}          // Required
+    int m_playerID = {},            // Required
+    Vec2 m_position = {},           // Optional
+    std::string m_location = {}     // Optional
 }
 ```
 
@@ -19,7 +19,7 @@ local new_unit = gx_create_unit({ m_unitType = "Brute", m_playerID=1, m_location
 - It is undefined behavior to have both `m_position` and `m_location` set.
 - If neither `m_position` nor `m_location` is set, unit will be created at `(0, 0)`
 
-# `int gx_get_sim_tick()`
+# gx_get_sim_tick
 ```c
 int gx_get_sim_tick()
 ```
@@ -27,22 +27,22 @@ int gx_get_sim_tick()
 - The first `gx_update` call will have tick = 1
 - every tick corresponds to 50ms real time
 
-# `int[] gx_get_units_at_location(table params = {})`
+# gx_get_units_at_location
 ```c
-int[] gx_get_units_at_location(table params)
+int[] gx_get_units_at_location(map params)
 ```
 ```c
-table params = {
-    string m_location = {}, # Required, location to get units from
-    string m_unitType = {}  # Optional, Filter for unit type
-    int m_playerID = {},    # Optional, Filter for player_id
-    int m_teamID = {},      # Optional, Filter for team_id
-    bool m_bReturnAirUnits = true,      # Optional, Set to false if you want to exclude air units
-    bool m_bReturnGroundUnits = true    # Optional, set to false if you want to exclude ground units
+map params = {
+    string m_location = {},             // Required, location to get units from
+    string m_unitType = {}              // Optional, Filter for unit type
+    int m_playerID = {},                // Optional, Filter for player_id
+    int m_teamID = {},                  // Optional, Filter for team_id
+    bool m_bReturnAirUnits = true,      // Optional, Set to false if you want to exclude air units
+    bool m_bReturnGroundUnits = true    // Optional, set to false if you want to exclude ground units
 }
 ```
 Example:
-```c
+```lua
 local the_units = gx_get_units_at_location({
     m_location = "my_cool_location",
     m_unitType = "Brute",
@@ -53,17 +53,17 @@ foreach (unit in the_units) {
 }
 ```
 
-# `void gx_create_explosion(table params)`
+# gx_create_explosion
 ```c
-void gx_create_explosion(table params)
+void gx_create_explosion(map params)
 ```
 
 ```c
-table params = {
-    float m_size = {},              # Optional, Diameter of explosion
-    Vec3 m_color = Vec3(1,1,0)      # Optional, ColorSRGB of explosion.
-    std::string m_location = {},    # Optional, Location for explosion
-    Vec2 m_pos2d = {}               # Optional, Position for explosion
+map params = {
+    float m_size = {},              // Optional, Diameter of explosion
+    Vec3 m_color = Vec3(1,1,0)      // Optional, ColorSRGB of explosion.
+    std::string m_location = {},    // Optional, Location for explosion
+    Vec2 m_pos2d = {}               // Optional, Position for explosion
 }
 ```
 
@@ -80,7 +80,7 @@ gx_create_explosion( {
 - if `m_size` is not set and `m_pos2d` is set, the resolved size will be `1`
 - Default value for `m_color` is `Vec3(1,1,0)` aka `0xFFFF00` (yellow)
 
-# `void gx_kill_unit(int unitID)`
+# gx_kill_unit
 ```c
 void gx_kill_unit(int unitID)
 ```
@@ -88,7 +88,7 @@ void gx_kill_unit(int unitID)
 - kills the unit `unitID`.
 - It is safe to call this function on already killed units
 
-# `bool gx_unit_exists(int unitID)`
+# gx_unit_exists
 ```c
 bool gx_unit_exists(int unitID)
 ```
@@ -96,7 +96,7 @@ bool gx_unit_exists(int unitID)
 - checks if unit still exists in the game
 - Note: this will still return `true` if unit is killed but not yet removed, since some units may not be removed immediately (i.e. they have a death animation)
 
-# `void gx_remove_unit(int unitID)`
+# gx_remove_unit
 ```c
 void gx_remove_unit(int unitID)
 ```
@@ -105,34 +105,36 @@ void gx_remove_unit(int unitID)
 - `unit_id` will be removed from game before the next gx_update call
 - It is safe to call this function on already killed or removed units
 
-# `bool gx_is_unit_alive_and_constructed(int unitID)`
+# gx_is_unit_alive_and_constructed
 ```c
 bool gx_is_unit_alive_and_constructed(int unitID)
 ```
 - returns `true` if unit is alive and constructed
+- returns `false` if unitID is invalid or unit no longer exists in game
 
-# `bool gx_is_unit_alive(int unitID)`
+# gx_is_unit_alive
 ```c
 bool gx_is_unit_alive(int unitID)
 ```
 - returns `true` if unit is alive
+- returns `false` if unitID is invalid or unit no longer exists in game
 - Note: This function still returns `true` if unit is not yet fully constructed
 
-# `vec2 gx_get_unit_position(int unitID)`
+# gx_get_unit_position
 ```c
-vec2 gx_get_unit_position(int unitID)
+Vec2 gx_get_unit_position(int unitID)
 ```
 
 - returns position of unit
 - returns Vec2(0, 0) if unit no longer exists
 
-# `void gx_set_unit_position(int unitID, table params)`
+# gx_set_unit_position
 ```c
-void gx_set_unit_position(int unitID, table params)
+void gx_set_unit_position(int unitID, map params)
 ```
 
 ```c
-table params = {
+map params = {
     string m_location = {}, # Optional, location to put unit
     Vec2 m_pos2d = {}  # Optional, position to put unit
 }
@@ -145,7 +147,7 @@ gx_set_unit_position(some_unit, { m_location = "location_to_teleport_to" } )
 - it is undefined to set both `m_location` and `m_pos2d`
 - if neither is defined, unit will be teleported to Vec2(0, 0)
 
-# `bool gx_is_ground_unit(int unitID)`
+# gx_is_ground_unit
 ```c
 bool gx_is_ground_unit(int unitID)
 ```
@@ -154,7 +156,7 @@ bool gx_is_ground_unit(int unitID)
 - note: knock-back effect can cause `ground` units to temporarily become `air` units
 - equivalent to calling `!gx_is_air_unit(unitID)`
 
-# `bool gx_is_air_unit(unit_id)`
+# gx_is_air_unit
 ```c
 bool gx_is_air_unit(int unitID)
 ```
@@ -162,3 +164,224 @@ bool gx_is_air_unit(int unitID)
 - units are always in either the `ground` or `air` state
 - note: knock-back effect can cause `ground` units to temporarily become `air` units
 - equivalent to calling `!gx_is_ground_unit(unitID)`
+
+# get_player_id
+```c
+int get_player_id(int unitID)
+```
+- returns the `player_id` for unit `unitID`
+
+# gx_set_player_gemstone
+```c
+void gx_set_player_gemstone(int playerID, float amount)
+```
+- set `amount` of gemstone for player `player_id`
+
+# gx_set_player_fungus
+```c
+void gx_set_player_fungus(int playerID, float amount)
+```
+- set `amount` of fungus for player `player_id`
+
+# gx_add_player_gemstone
+```c
+void gx_add_player_gemstone(int playerID, float amount)
+```
+- adds `amount` of gemstone for player `player_id`
+
+# gx_add_player_fungus
+```c
+void gx_add_player_fungus(int playerID, float amount)
+```
+- adds `amount` of fungus for player `player_id`
+
+# gx_get_player_gemstone
+```c
+float gx_get_player_gemstone(int playerID)
+```
+- returns amount of gemstone for player `player_id`
+
+# gx_get_player_fungus
+```c
+float gx_get_player_fungus(int playerID)
+```
+- returns amount of fungus for player `player_id`
+
+# gx_get_player_supply
+```c
+float gx_get_player_supply(int playerID)
+```
+- returns supply for player `player_id`
+
+# gx_print
+```c
+void gx_print(string message, map params = {})
+```
+
+```c
+map params = {
+    m_teamID = {},      // Optional, send message to only team_id
+    m_playerID = {}     // Optional, send message to only player_id
+}
+```
+
+- outputs text to game chat
+
+# gx_set_victory
+```c
+void gx_set_victory(map params)
+```
+
+```c
+map params = {
+    m_playerID = {},    // Required for non-team games
+    m_teamID = {}       // Required for team games
+}
+```
+- `m_playerID` is ignored in team games.
+- `m_teamID` is ignored in non-team games
+- once a player or team is set to `victory`, future calls to `gx_set_victory`/`gx_set_defeat` will be ignored
+
+# gx_set_defeat
+```c
+void gx_set_defeat(map params)
+```
+
+```c
+map params = {
+    m_playerID = {},        // Required for non-team games
+    m_teamID = {},          // Required for team games
+    m_bKillAllUnits = true  // Optional, default true
+}
+```
+- `m_playerID` is ignored in team games.
+- `m_teamID` is ignored in non-team games
+- if `m_bKillAllUnits` is `true`, all units for player (or team) will be killed.
+- once a player or team is set to `defeat`, future calls to `gx_set_victory`/`gx_set_defeat` will be ignored
+
+
+# gx_encode_text
+```c
+string gx_encode_text(string text)
+```
+
+Example
+```lua
+local someText = gx_encode_text("^23Rainbow Text")
+gx_print(someText)
+```
+# gx_get_unit_count
+```c
+int gx_get_unit_count(map params)
+```
+```c
+map params = {
+    m_playerID = {},                    // Optional, filter by player_id
+    m_teamID = {},                      // Optional, filter by team_id
+    m_unitType = {},                    // Optional, filter by unit_type
+    m_location = {},                    // Optional, only return units within specified location
+    m_boundsCheck = BoundsCheck.Center  // Optional, used only if m_location is set (default: Center)
+    m_bAirUnits = true,                 // Optional, include air units in query (default: true)
+    m_bGroundUnits = true               // Optional, include ground units in query (default: true)
+}
+```
+
+example:
+
+```lua
+local numBrutesAtMyLocation = gx_get_unit_count({
+    m_unitType="Brute",
+    m_location="MyLocation"
+})
+
+gx_print(numBrutesAtMyLocation)
+```
+
+- if `m_location` is not set, will return number of units on entire map
+- if `m_playerID` is not set, will return number of units for all players
+- if `m_teamID` is not set, will return number of units for all teams
+
+# BoundsCheck enum
+
+The BoundsCheck enum is used in unit search queries within locations
+
+```c
+enum BoundsCheck
+{
+    Center = 0,     // Unit's center position is in location
+    Touching = 1,   // Unit is fully inside or touching location
+    Inside = 2      // Unit fully inside a location
+}
+```
+
+# gx_copy_ud
+```c
+void gx_copy_ud(string unit_type, string new_unit_type)
+```
+
+The example below creates a new type of unit called "_BabyBrute".\
+It copies the existing definition of "Brute" to "_BabyBrute".
+
+```c
+gx_copy_ud("Brute", "_BabyBrute")
+```
+- new unit type name MUST begin with `_`. This is to prevent naming collisions for future added official units.
+- `ud` is short for `unit_data` which is the "definition" for a particular `unit_type`
+- this function can only be called in the `gx_map_init` stage
+- any attempt to call this outside of the `gx_map_init` will be ignored.
+- in the future, it should be possible to call this during `gx_update`
+
+
+# gx_modify_ud_props
+```c
+void gx_modify_ud_props(string unit_type, map props)
+```
+
+```c
+map params = {
+    string m_friendlyName = {},        // Optional, set unit's display name
+    int m_maxHealth = {},           // Optional, set max health
+    float m_maxSpeed = {},            // Optional, set max speed
+    int m_baseArmor = {},           // Optional, sets base armor
+    int m_size = {}                 // Optional, set unit size
+}
+```
+The example below creates a new type of unit called "_BabyBrute".\
+It copies the existing definition of "Brute" to "_BabyBrute". \
+It then sets properties such as friendly name, maxHealth, baseArmor, and size.
+
+```c
+gx_copy_ud("Brute", "_BabyBrute")
+gx_modify_ud_props("_BabyBrute", {
+    m_friendlyName = "Baby Brute",
+    m_maxHealth = 30,
+    m_baseArmor = 0,
+    m_size = 1
+})
+```
+
+- Sets properties for a specific `unit_type`
+- `ud` is short for `unit_data` which is the "definition" for a particular `unit_type`
+- this function can only be called in the `gx_map_init` stage
+- any attempt to call this outside of the `gx_map_init` will be ignored.
+- in the future, it should be possible to call this during `gx_update`
+
+
+# gx_fling_unit
+
+throws the unit
+
+```c
+void gx_fling_unit(int unit_id, map params = {})
+```
+
+```c
+map params = {
+    Vec2 m_dir2d = {},      // Optional, 2d direction to throw unit. Does not need to be normalized.
+    Vec3 m_dir3d = {},      // Optional, 3d direction to throw unit. Does not need to be normalized.
+    float m_force = 1       // Optional, velocity to throw unit
+}
+```
+
+- If neither `m_dir2d` nor `m_dir3d` is set, unit will be thrown in random direction
+- Only `m_dir2d` or `m_dir3d` should be set. Setting both is undefined behavior.
