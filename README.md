@@ -320,6 +320,10 @@ enum UnitProps
 	Size = 4,       // Read-Only        (float)
 	UnitType = 5,   // Read-Only        (string)
     IsOnFire = 6    // Read-Only        (bool)
+    GetParentJeep = 7,          // Read-Only (int)
+	GetParentDropship = 8,      // Read-Only (int)
+	GetParentStarShip = 9,      // Read-Only (int)
+	GetParentSpinnerShip = 1    // Read-Only (int)
 }
 ```
 - NOTE: Do not rely on enum values to remain the same.
@@ -518,12 +522,7 @@ local params = {
 }
 ```
 
-# gx_get_player_prop
-```c
-mixed gx_get_player_prop(PlayerProps prop, int playerID)
-```
-
-Overloads:
+# gx_get_player_prop [overloads]
 ```c
 float gx_get_player_prop(PlayerProps.Fungus, int playerID)
 float gx_get_player_prop(PlayerProps.Gemstone, int playerID)
@@ -534,34 +533,19 @@ int gx_get_player_prop(PlayerProps.MaxSupply, int playerID)
 ```
 
 
-# gx_set_player_prop
-```c
-void gx_set_player_prop(PlayerProps prop, int playerID, mixed val)
-```
-
-Overloads:
+# gx_set_player_prop [overloads]
 ```c
 void gx_get_player_prop(PlayerProps.Fungus, int playerID, float val)
 void gx_get_player_prop(PlayerProps.Gemstone, int playerID, float val)
 ```
 
-# gx_add_player_prop
-```c
-void gx_add_player_prop(PlayerProps prop, int playerID, mixed val)
-```
-
-Overloads:
+# gx_add_player_prop [overloads]
 ```c
 void gx_add_player_prop(PlayerProps.Fungus, int playerID, float val)
 void gx_add_player_prop(PlayerProps.Gemstone, int playerID, float val)
 ```
 
-# gx_get_location_prop
-```c
-mixed gx_get_location_prop(LocationProps prop, string location)
-```
-
-Overloads:
+# gx_get_location_prop [overloads]
 ```c
 Vec2 gx_get_location_prop(LocationProps.TopLeft, string location)
 Vec2 gx_get_location_prop(LocationProps.TopRight, string location)
@@ -571,12 +555,45 @@ Vec2 gx_get_location_prop(LocationProps.Center, string location)
 Vec2 gx_get_location_prop(LocationProps.Size, string location)
 ```
 
-# gx_set_location_prop
-- no overloads (currently)
+# gx_set_location_prop [overloads]
+- none currently
 
-# gx_get_unit_prop
+# gx_get_unit_prop [overloads]
+```c
+int gx_get_unit_prop(UnitProps.MaxHealth, int unit_id)
+float gx_get_unit_prop(UnitProps.Health, int unit_id)
+float gx_get_unit_prop(UnitProps.MaxSpeed, int unit_id)
+float gx_get_unit_prop(UnitProps.Size, int unit_id)
+string gx_get_unit_prop(UnitProps.UnitType, int unit_id)
+bool gx_get_unit_prop(UnitProps.IsOnFire, int unit_id)
+int gx_get_unit_prop(UnitProps.GetParentJeep, int unit_id)
+int gx_get_unit_prop(UnitProps.GetParentDropship, int unit_id)
+int gx_get_unit_prop(UnitProps.GetParentStarShip, int unit_id)
+int gx_get_unit_prop(UnitProps.GetParentSpinnerShip, int unit_id)
+```
 
-# gx_set_unit_prop
+Examples:
+```c
+local jeep_unit_id = gx_get_unit_prop(UnitProps.GetParentJeep, my_unit_id)
+if (jeep_unit_id == 0) {
+    gx_print("my_unit is NOT riding a jeep...")
+} else {
+    gx_print("my_unit is riding a jeep, yay :) !!")
+}
+
+local bUnitOnFire = gx_get_unit_prop(UnitProps.IsOnFire, my_unit_id)
+if (bUnitOnFire) {
+    gx_print("oh noes! my unit is burning!")
+}
+
+local my_unit_health = gx_get_unit_prop(UnitProps.Health, my_unit_id)
+gx_print("my unit's health is " + my_unit_health)
+```
+
+# gx_set_unit_prop [overloads]
+```c
+void gx_set_unit_prop(UnitProps.Health, int unit_id, float val)
+```
 
 # get_get_unit_user_data
 ```c
@@ -585,8 +602,6 @@ table gx_get_unit_user_data(int unit_id)
 
 Example:
 ```c
-
-local myData = gx_get_unit_user_data(myUnit)
-myData["abc"] <- 
-
+local myData = gx_get_unit_user_data(my_unit_id)
+myData["abc"] <- "haha"
 ```
