@@ -53,6 +53,7 @@ local the_units = gx_get_units({
     m_unitType = "Brute",
     m_playerID=1
 })
+
 foreach (unit in the_units) {
     gx_kill_unit(unit)
 }
@@ -83,8 +84,8 @@ Example:
 
 ```lua
 local numBrutesAtMyLocation = gx_get_unit_count({
-    m_unitType="Brute",
-    m_location="MyLocation"
+    m_unitType = "Brute",
+    m_location = "MyLocation"
 })
 
 gx_print(numBrutesAtMyLocation)
@@ -117,6 +118,7 @@ gx_create_explosion( {
 - it is undefined behavior to set both `m_location` and `m_pos2d`
 - if `m_size` is not set and `m_location` is set, the resolved size will be the minimum width/height of `m_location`
 - if `m_size` is not set and `m_pos2d` is set, the resolved size will be `1`
+- Explosions are purely visual. They do not do any damage.
 - Default value for `m_color` is `Vec3(1,1,0)` aka `0xFFFF00` (yellow)
 
 # gx_kill_unit
@@ -481,16 +483,16 @@ enum LocationProps
 // Primary Terrain Types
 enum TerrainTypes
 {
-    Normal = 0,
-	Glow = 1,
-	Water = 2,
-	Lava = 3,
-	Diamond = 4,
-	PlayerColor = 8,
-	Unpassable = 9,     // !! Not a dynamic terrain! Cannot dynamically change or be set to.
-	Space = 10,
-	CliffInner = 14,    // !! Not a dynamic terrain! Cannot dynamically change or be set to.
-	CliffOuter = 15     // !! Not a dynamic terrain! Cannot dynamically change or be set to.
+    Normal = 0,         // See SecondaryTerrainTypeNormal for valid secondary types
+	Glow = 1,           // valid secondary types are [0 - 31]
+	Water = 2,          // valid secondary types are [0 - 2]
+	Lava = 3,           // valid secondary types are [0 - 2]
+	Diamond = 4,        // valid secondary types are [0 - 1]. (0 = Normal, 1 = Cracked)
+	PlayerColor = 8,    // valid secondary types are [1 - 16] (i.e. player_id)
+	Unpassable = 9,     // !! Not a dynamic terrain type! Cannot dynamically change or be set to.
+	Space = 10,         // valid secondary type is just 0
+	CliffClosed = 14,    // !! Not a dynamic terrain type! Cannot dynamically change or be set to.
+	CliffBorder = 15     // !! Not a dynamic terrain type! Cannot dynamically change or be set to.
 }
 ```
 - Used in `gx_set_terrain_type` and `gx_get_terrain_type`
@@ -499,14 +501,14 @@ enum TerrainTypes
 ```c
 enum SecondaryTerrainTypeNormal
 {
-	Normal = 0,
-	Speed = 1,
-	AttackRate = 2,
-	Heal = 3,
-	Forbidden = 4,
-	Sniper = 5,
-	MeleeOnly = 6,
-	Pacifist = 7
+	Normal = 0,         // Units are normal on this type (no effects)
+	Speed = 1,          // Units move faster on this type
+	AttackRate = 2,     // Units have faster attack rate on this type
+	Heal = 3,           // Units heal faster on this type
+	Forbidden = 4,      // Units insta-die on this type
+	Sniper = 5,         // Units have increased range on this type
+	MeleeOnly = 6,      // Units have decreased range on this type
+	Pacifist = 7        // Units are unable to attack on this type
 }
 ```
 - Used in `gx_set_terrain_type` and `gx_get_terrain_type`
@@ -570,3 +572,16 @@ local params = {
 # gx_get_unit_prop
 
 # gx_set_unit_prop
+
+# get_get_unit_user_data
+```c
+table gx_get_unit_user_data(int unit_id)
+```
+
+Example:
+```c
+
+local myData = gx_get_unit_user_data(myUnit)
+myData["abc"] <- 
+
+```
