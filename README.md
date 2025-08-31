@@ -358,7 +358,8 @@ enum UnitProps
 	Health = 2,
 	MaxSpeed = 3,
 	Size = 4,
-	UnitType = 5
+	UnitType = 5,
+    IsOnFire = 6
 }
 ```
 - NOTE: Do not rely on enum values to remain the same.
@@ -461,11 +462,111 @@ table params = {
 - If neither `m_dir2d` nor `m_dir3d` is set, unit will be thrown in random direction
 - Only `m_dir2d` or `m_dir3d` should be set. Setting both is undefined behavior.
 
+# LocationProps enum
+```c
+enum LocationProps
+{
+	TopLeft = 1,
+	TopRight = 2,
+	BottomLeft = 3,
+	BottomRight = 4,
+	Center = 5,
+	Size = 6
+}
+```
+- Used in `gx_get_location_prop` and `gx_set_location_prop`
 
-# gx_get_location_position
+# TerrainTypes enum
+```c
+// Primary Terrain Types
+enum TerrainTypes
+{
+    Normal = 0,
+	Glow = 1,
+	Water = 2,
+	Lava = 3,
+	Diamond = 4,
+	PlayerColor = 8,
+	Unpassable = 9,     // !! Not a dynamic terrain! Cannot dynamically change or be set to.
+	Space = 10,
+	CliffInner = 14,    // !! Not a dynamic terrain! Cannot dynamically change or be set to.
+	CliffOuter = 15     // !! Not a dynamic terrain! Cannot dynamically change or be set to.
+}
+```
+- Used in `gx_set_terrain_type` and `gx_get_terrain_type`
+
+# SecondaryTerrainTypeNormal enum
+```c
+enum SecondaryTerrainTypeNormal
+{
+	Normal = 0,
+	Speed = 1,
+	AttackRate = 2,
+	Heal = 3,
+	Forbidden = 4,
+	Sniper = 5,
+	MeleeOnly = 6,
+	Pacifist = 7
+}
+```
+- Used in `gx_set_terrain_type` and `gx_get_terrain_type`
+
+# gx_set_terrain_type
+```c
+void gx_set_terrain_type(params = {})
+```
 
 ```c
-Vec2 gx_get_location_position(string location)
+table params = {
+    TerrainTypes m_type         // Required. The type of terrain to change to. See TerrainTypes enum. 
+    int m_secondary = 0         // Secondary terrain type. (default = 0)
+    vec2 m_index = {},          // 2d index of square to change terrain type of
+    int m_index2,               // 0 or 1, 0 indicates bottom triangle, 1 indicates top.
+                                // If index2 is not defined, entire square specified by m_index
+                                // will be set to terrain type (i.e. both triangles, top and bottom).
+                                // m_index and index2 are ignored if m_location is set.
+    string m_location = {}      // location to set terrain tile types.
+}
 ```
-- Returns center position of `location`.
-- If `location` does not exist will return `Vec2(0, 0)`
+
+Example that sets terrain at location `my_location` to Pacifist type:
+```c
+gx_set_terrain_type({
+    m_type = TerrainTypes.Normal,
+    m_secondary = SecondaryTerrainTypeNormal.Pacifist,
+    m_location = "my_location"
+})
+```
+
+# gx_get_terrain_type
+```c
+vec2 gx_get_terrain_type(vec2 index, int index2 = 0)
+````
+- returns primary terrain type in `vec.x` and returns secondary terrain type in `vec.y`
+
+# gx_set_player_camera_look_at
+```c
+void gx_set_camera_look_at(params = {})
+```
+
+```c
+local params = {
+    int m_playerID = {},
+    int m_teamID = {},
+    int m_unitID = {},
+    string m_location = {}
+}
+```
+
+
+# gx_get_player_prop
+
+# gx_set_player_prop
+
+# gx_get_location_prop
+
+# gx_set_location_prop
+
+# gx_get_unit_prop
+
+# gx_set_unit_prop
