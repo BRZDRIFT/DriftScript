@@ -222,9 +222,9 @@ bool gx_is_air_unit(int unit_id)
 - note: knock-back effect can cause `ground` units to temporarily become `air` units
 - equivalent to calling `!gx_is_ground_unit(unit_id)`
 
-# get_player_id
+# gx_get_player
 ```c
-int get_player_id(int unit_id)
+int gx_get_player(int unit_id)
 ```
 - returns the `player_id` for unit `unit_id`
 
