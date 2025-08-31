@@ -239,8 +239,8 @@ void gx_print(string message, table params = {})
 
 ```c
 table params = {
-    m_teamID = {},      // Optional, send message to only team_id
-    m_playerID = {}     // Optional, send message to only player_id
+    int m_teamID = {},      // Optional, send message to only team_id
+    int m_playerID = {}     // Optional, send message to only player_id
 }
 ```
 
@@ -253,8 +253,8 @@ void gx_set_victory(table params)
 
 ```c
 table params = {
-    m_playerID = {},    // Required for non-team games
-    m_teamID = {}       // Required for team games
+    int m_playerID = {},    // Required for non-team games
+    int m_teamID = {}       // Required for team games
 }
 ```
 - `m_playerID` is ignored in team games.
@@ -268,9 +268,9 @@ void gx_set_defeat(table params)
 
 ```c
 table params = {
-    m_playerID = {},        // Required for non-team games
-    m_teamID = {},          // Required for team games
-    m_bKillAllUnits = true  // Optional, default true
+    int m_playerID = {},            // Required for non-team games
+    int m_teamID = {},              // Required for team games
+    bool m_bKillAllUnits = true     // Optional, default true
 }
 ```
 - `m_playerID` is ignored in team games.
@@ -295,16 +295,16 @@ int gx_get_unit_count(table params)
 ```
 ```c
 table params = {
-    m_playerID = {},                    // Optional, filter by player_id
-    m_teamID = {},                      // Optional, filter by team_id
-    m_unitType = {},                    // Optional, filter by unit_type
-    m_location = {},                    // Optional, only return units within specified location
-    m_boundsCheck = BoundsCheck.Center  // Optional, used only if m_location is set (default: Center)
-    m_bCountAirUnits = true,            // Optional, include air units in query (default: true)
-    m_bCountGroundUnits = true,         // Optional, include ground units in query (default: true)
-    m_bCountKilledUnits = false,        // Optional, include killed units (default: false)
-    m_bCountRemovedUnits = false        // Optional, include removed units (default: false)
-    m_bCountProjectiles = false         // Optional, include projectiles
+    int m_playerID = {},                            // Optional, filter by player_id
+    int m_teamID = {},                              // Optional, filter by team_id
+    string m_unitType = {},                         // Optional, filter by unit_type
+    string m_location = {},                         // Optional, only return units within specified location
+    BoundsCheck m_boundsCheck = BoundsCheck.Center  // Optional, used only if m_location is set (default: Center)
+    bool m_bCountAirUnits = true,                   // Optional, include air units in query (default: true)
+    bool m_bCountGroundUnits = true,                // Optional, include ground units in query (default: true)
+    bool m_bCountKilledUnits = false,               // Optional, include killed units (default: false)
+    bool m_bCountRemovedUnits = false               // Optional, include removed units (default: false)
+    bool m_bCountProjectiles = false                // Optional, include projectiles
 }
 ```
 
