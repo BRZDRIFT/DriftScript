@@ -33,15 +33,16 @@ int[] gx_get_units(table params)
 ```
 ```c
 table params = {
-    string m_location = {},              // Required, location to get units from
-    string m_unitType = {}               // Optional, Filter for unit type
-    int m_playerID = {},                 // Optional, Filter for player_id
-    int m_teamID = {},                   // Optional, Filter for team_id
-    bool m_bIncludeAirUnits = true,      // Optional, Set to false if you want to exclude air units
-    bool m_bIncludeGroundUnits = true    // Optional, set to false if you want to exclude ground units
-    bool m_bIncludeKilledUnits = false,  // Optional, Set to true if you want to include killed units
-    bool m_bIncludeRemovedUnits = false  // Optional, set to true if you want to include removed units
-    bool m_bIncludeProjectiles = false   // Optional, include projectiles
+    int m_playerID = {},                            // Optional, Filter for player_id
+    int m_teamID = {},                              // Optional, Filter for team_id
+    string m_unitType = {}                          // Optional, Filter for unit type
+    string m_location = {},                         // Required, location to get units from
+    BoundsCheck m_boundsCheck = BoundsCheck.Center  // Optional, used if m_location is set. (default = Center)
+    bool m_bIncludeAirUnits = true,                 // Optional, Set to false if you want to exclude air units
+    bool m_bIncludeGroundUnits = true               // Optional, set to false if you want to exclude ground units
+    bool m_bIncludeKilledUnits = false,             // Optional, Set to true if you want to include killed units
+    bool m_bIncludeRemovedUnits = false             // Optional, set to true if you want to include removed units
+    bool m_bIncludeProjectiles = false              // Optional, include projectiles (default: false)
 }
 ```
 Example:
@@ -55,6 +56,37 @@ foreach (unit in the_units) {
     gx_kill_unit(unit)
 }
 ```
+
+# gx_get_unit_count
+```c
+int gx_get_unit_count(table params)
+```
+```c
+table params = {
+    int m_playerID = {},                            // Optional, filter by player_id
+    int m_teamID = {},                              // Optional, filter by team_id
+    string m_unitType = {},                         // Optional, filter by unit_type
+    string m_location = {},                         // Optional, only return units within specified location
+    BoundsCheck m_boundsCheck = BoundsCheck.Center  // Optional, used only if m_location is set (default: Center)
+    bool m_bCountAirUnits = true,                   // Optional, include air units in query (default: true)
+    bool m_bCountGroundUnits = true,                // Optional, include ground units in query (default: true)
+    bool m_bCountKilledUnits = false,               // Optional, include killed units (default: false)
+    bool m_bCountRemovedUnits = false               // Optional, include removed units (default: false)
+    bool m_bCountProjectiles = false                // Optional, include projectiles (default: false)
+}
+```
+
+Example:
+
+```lua
+local numBrutesAtMyLocation = gx_get_unit_count({
+    m_unitType="Brute",
+    m_location="MyLocation"
+})
+
+```
+
+- if `m_location` is not set, will return number of units on entire map
 
 # gx_create_explosion
 ```c
@@ -244,7 +276,14 @@ table params = {
 }
 ```
 
+Example
+```
+// display chat message 'Hellow World!' to player 3
+gx_print("Hello World!", {m_playerID = 3})
+```
+
 - outputs text to game chat
+- useful for debugging as well
 
 # gx_set_victory
 ```c
@@ -253,8 +292,8 @@ void gx_set_victory(table params)
 
 ```c
 table params = {
-    int m_playerID = {},    // Required for non-team games
-    int m_teamID = {}       // Required for team games
+    int m_playerID = {},    // Ignored in team games
+    int m_teamID = {}       // Ignored in non-team games
 }
 ```
 - `m_playerID` is ignored in team games.
@@ -268,9 +307,9 @@ void gx_set_defeat(table params)
 
 ```c
 table params = {
-    int m_playerID = {},            // Required for non-team games
-    int m_teamID = {},              // Required for team games
-    bool m_bKillAllUnits = true     // Optional, default true
+    int m_playerID = {},            // Ignored in team games
+    int m_teamID = {},              // Ignored in non-team games
+    bool m_bKillAllUnits = true     // Optional, (default true)
 }
 ```
 - `m_playerID` is ignored in team games.
@@ -289,39 +328,8 @@ Example
 local someText = gx_encode_text("^23Rainbow Text")
 gx_print(someText)
 ```
-# gx_get_unit_count
-```c
-int gx_get_unit_count(table params)
-```
-```c
-table params = {
-    int m_playerID = {},                            // Optional, filter by player_id
-    int m_teamID = {},                              // Optional, filter by team_id
-    string m_unitType = {},                         // Optional, filter by unit_type
-    string m_location = {},                         // Optional, only return units within specified location
-    BoundsCheck m_boundsCheck = BoundsCheck.Center  // Optional, used only if m_location is set (default: Center)
-    bool m_bCountAirUnits = true,                   // Optional, include air units in query (default: true)
-    bool m_bCountGroundUnits = true,                // Optional, include ground units in query (default: true)
-    bool m_bCountKilledUnits = false,               // Optional, include killed units (default: false)
-    bool m_bCountRemovedUnits = false               // Optional, include removed units (default: false)
-    bool m_bCountProjectiles = false                // Optional, include projectiles
-}
-```
-
-Example:
-
-```lua
-local numBrutesAtMyLocation = gx_get_unit_count({
-    m_unitType="Brute",
-    m_location="MyLocation"
-})
 
 gx_print(numBrutesAtMyLocation)
-```
-
-- if `m_location` is not set, will return number of units on entire map
-- if `m_playerID` is not set, will return number of units for all players
-- if `m_teamID` is not set, will return number of units for all teams
 
 # BoundsCheck enum
 
