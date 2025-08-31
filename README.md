@@ -12,7 +12,7 @@ table params = {
 ```
 
 ```lua
-local new_unit = gx_create_unit({ m_unitType = "Brute", m_playerID=1, m_location="my_cool_location" })
+local new_unit = gx_create_unit({ m_unitType = "Brute", m_playerID=1, m_location = "my_cool_location" })
 ```
 
 - Will create unit of type `m_unitType` at position `m_position` or at location `m_location` for player `m_playerID`.
@@ -228,48 +228,6 @@ int get_player_id(int unit_id)
 ```
 - returns the `player_id` for unit `unit_id`
 
-# gx_set_player_gemstone
-```c
-void gx_set_player_gemstone(int player_id, float amount)
-```
-- set `amount` of gemstone for player `player_id`
-
-# gx_set_player_fungus
-```c
-void gx_set_player_fungus(int player_id, float amount)
-```
-- set `amount` of fungus for player `player_id`
-
-# gx_add_player_gemstone
-```c
-void gx_add_player_gemstone(int player_id, float amount)
-```
-- adds `amount` of gemstone for player `player_id`
-
-# gx_add_player_fungus
-```c
-void gx_add_player_fungus(int player_id, float amount)
-```
-- adds `amount` of fungus for player `player_id`
-
-# gx_get_player_gemstone
-```c
-float gx_get_player_gemstone(int player_id)
-```
-- returns amount of gemstone for player `player_id`
-
-# gx_get_player_fungus
-```c
-float gx_get_player_fungus(int player_id)
-```
-- returns amount of fungus for player `player_id`
-
-# gx_get_player_supply
-```c
-float gx_get_player_supply(int player_id)
-```
-- returns supply for player `player_id`
-
 # gx_print
 ```c
 void gx_print(string message, table params = {})
@@ -356,12 +314,12 @@ The UnitProps enum is used in `gx_get_unit_prop` and `gx_set_unit_prop`
 ```c
 enum UnitProps
 {
-	MaxHealth = 1,  // Read-Only
-	Health = 2,     // Read / Write
-	MaxSpeed = 3,   // Read-Only
-	Size = 4,       // Read-Only
-	UnitType = 5,   // Read-Only
-    IsOnFire = 6    // Read-Only
+	MaxHealth = 1,  // Read-Only        (int)
+	Health = 2,     // Read / Write     (float)
+	MaxSpeed = 3,   // Read-Only        (float)
+	Size = 4,       // Read-Only        (float)
+	UnitType = 5,   // Read-Only        (string)
+    IsOnFire = 6    // Read-Only        (bool)
 }
 ```
 - NOTE: Do not rely on enum values to remain the same.
@@ -373,12 +331,12 @@ The PlayerProps enum is used in `gx_get_player_prop` and `gx_set_player_prop`
 ```c
 enum PlayerProps
 {
-	Fungus = 1,     // Read / Write
-	Gemstone = 2,   // Read / Write
-	Supply = 3,     // Read-Only
-	MaxSupply = 4,  // Read-Only
-	NumKills = 5,   // Read-Only
-	NumDeaths = 6   // Read-Only
+	Fungus = 1,     // Read / Write     (float)
+	Gemstone = 2,   // Read / Write     (float)
+	Supply = 3,     // Read-Only        (int)
+	MaxSupply = 4,  // Read-Only        (int)
+	NumKills = 5,   // Read-Only        (int)
+	NumDeaths = 6   // Read-Only        (int)
 }
 ```
 - NOTE: Do not rely on enum values to remain the same.
@@ -522,7 +480,7 @@ void gx_set_terrain_type(params = {})
 table params = {
     TerrainTypes m_type         // Required. The type of terrain to change to. See TerrainTypes enum. 
     int m_secondary = 0         // Secondary terrain type. (default = 0)
-    vec2 m_index = {},          // 2d index of square to change terrain type of
+    Vec2 m_index = {},          // 2d index of square to change terrain type of
     int m_index2,               // 0 or 1, 0 indicates bottom triangle, 1 indicates top.
                                 // If index2 is not defined, entire square specified by m_index
                                 // will be set to terrain type (i.e. both triangles, top and bottom).
@@ -542,7 +500,7 @@ gx_set_terrain_type({
 
 # gx_get_terrain_type
 ```c
-vec2 gx_get_terrain_type(vec2 index, int index2 = 0)
+Vec2 gx_get_terrain_type(Vec2 index, int index2 = 0)
 ````
 - returns primary terrain type in `vec.x` and returns secondary terrain type in `vec.y`
 
@@ -560,14 +518,61 @@ local params = {
 }
 ```
 
-
 # gx_get_player_prop
+```c
+mixed gx_get_player_prop(PlayerProps prop, int playerID)
+```
+
+Overloads:
+```c
+float gx_get_player_prop(PlayerProps.Fungus, int playerID)
+float gx_get_player_prop(PlayerProps.Gemstone, int playerID)
+int gx_get_player_prop(PlayerProps.NumKills, int playerID)
+int gx_get_player_prop(PlayerProps.NumDeaths, int playerID)
+int gx_get_player_prop(PlayerProps.Supply, int playerID)
+int gx_get_player_prop(PlayerProps.MaxSupply, int playerID)
+```
+
 
 # gx_set_player_prop
+```c
+void gx_set_player_prop(PlayerProps prop, int playerID, mixed val)
+```
+
+Overloads:
+```c
+void gx_get_player_prop(PlayerProps.Fungus, int playerID, float val)
+void gx_get_player_prop(PlayerProps.Gemstone, int playerID, float val)
+```
+
+# gx_add_player_prop
+```c
+void gx_add_player_prop(PlayerProps prop, int playerID, mixed val)
+```
+
+Overloads:
+```c
+void gx_add_player_prop(PlayerProps.Fungus, int playerID, float val)
+void gx_add_player_prop(PlayerProps.Gemstone, int playerID, float val)
+```
 
 # gx_get_location_prop
+```c
+mixed gx_get_location_prop(LocationProps prop, string location)
+```
+
+Overloads:
+```c
+Vec2 gx_get_location_prop(LocationProps.TopLeft, string location)
+Vec2 gx_get_location_prop(LocationProps.TopRight, string location)
+Vec2 gx_get_location_prop(LocationProps.BottomLeft, string location)
+Vec2 gx_get_location_prop(LocationProps.BottomRight, string location)
+Vec2 gx_get_location_prop(LocationProps.Center, string location)
+Vec2 gx_get_location_prop(LocationProps.Size, string location)
+```
 
 # gx_set_location_prop
+- no overloads (currently)
 
 # gx_get_unit_prop
 
