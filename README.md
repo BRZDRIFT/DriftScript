@@ -4,8 +4,8 @@ int gx_create_unit(table params)
 ```
 ```c
 table params = {
-    string m_unitType = {}          // Required
-    int m_playerID = {},            // Required
+    string m_unitType,              // Required
+    int m_playerID,                 // Required
     Vec2 m_position = {},           // Optional
     string m_location = {}          // Optional
 }
@@ -372,7 +372,7 @@ gx_copy_ud("Brute", "_BabyBrute")
 
 # gx_modify_ud_props
 ```c
-void gx_modify_ud_props(string unit_type, table props = {})
+void gx_modify_ud_props(string unit_type, table params = {})
 ```
 
 ```c
