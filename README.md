@@ -134,6 +134,7 @@ bool gx_is_unit_alive(int unitID)
 - returns `true` if unit is alive
 - returns `false` if unitID is invalid or unit no longer exists in game
 - Note: This function still returns `true` if unit is not yet fully constructed
+- equivalent to calling `gx_is_unit_killed(unitID)`
 
 # gx_get_unit_position
 ```c
