@@ -334,7 +334,8 @@ gx_print(someText)
 
 # BoundsCheck enum
 
-The BoundsCheck enum is used in unit search queries within locations
+The BoundsCheck enum is used in unit search queries within locations.\
+Most notably in `gx_get_units` and `gx_get_unit_count`
 
 ```c
 enum BoundsCheck
@@ -362,6 +363,22 @@ enum UnitProps
 ```
 - NOTE: Do not rely on enum values to remain the same.
 
+# PlayerProps enum
+
+The PlayerProps enum is used in `gx_get_player_prop` and `gx_set_player_prop`
+
+```c
+enum PlayerProps
+{
+	Fungus = 1,
+	Gemstone = 2,
+	Supply = 3,
+	MaxSupply = 4,
+	NumKills = 5,
+	NumDeaths = 6
+}
+```
+- NOTE: Do not rely on enum values to remain the same.
 
 # gx_copy_ud
 
