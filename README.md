@@ -1,5 +1,5 @@
 # Drift Script
-Drift Script is a slightly modified version of Squirrel 3.2 language. \
+Drift Script is a modified version of Squirrel 3.2 language. \
 Please refer to the language reference manual here: \
 http://squirrel-lang.org/squirreldoc/reference/language.html
 
