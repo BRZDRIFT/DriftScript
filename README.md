@@ -88,6 +88,31 @@ void gx_kill_unit(int unitID)
 - kills the unit `unitID`.
 - It is safe to call this function on already killed units
 
+# gx_is_unit_killed
+```c
+void gx_is_unit_killed(int unitID)
+```
+- returns if the unit `unitID` is killed
+- returns `true` if unit does not exist
+- equivalent to calling `!gx_is_unit_alive(unitID)`
+
+# gx_remove_unit
+```c
+void gx_remove_unit(int unitID)
+```
+
+- marks the unit to be removed by game
+- `unit_id` will be removed from game before the next gx_update call
+- It is safe to call this function on already killed or removed units
+
+# gx_is_unit_removed
+```c
+void gx_is_unit_removed(int unitID)
+```
+
+- returns if unit is marked to be removed
+- will still return `true` if unitID does not exist
+
 # gx_unit_exists
 ```c
 bool gx_unit_exists(int unitID)
@@ -95,15 +120,6 @@ bool gx_unit_exists(int unitID)
 
 - checks if unit still exists in the game
 - Note: this will still return `true` if unit is killed but not yet removed, since some units may not be removed immediately (i.e. they have a death animation)
-
-# gx_remove_unit
-```c
-void gx_remove_unit(int unitID)
-```
-
-- sets the unit to be removed by game
-- `unit_id` will be removed from game before the next gx_update call
-- It is safe to call this function on already killed or removed units
 
 # gx_is_unit_alive_and_constructed
 ```c
@@ -135,8 +151,8 @@ void gx_set_unit_position(int unitID, map params)
 
 ```c
 map params = {
-    string m_location = {}, # Optional, location to put unit
-    Vec2 m_pos2d = {}  # Optional, position to put unit
+    string m_location = {},     // Optional, location to put unit
+    Vec2 m_pos2d = {}           // Optional, position to put unit
 }
 ```
 example
