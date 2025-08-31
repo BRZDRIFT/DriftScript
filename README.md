@@ -119,7 +119,6 @@ bool gx_unit_exists(int unitID)
 ```
 
 - checks if unit still exists in the game
-- Note: this will still return `true` if unit is killed but not yet removed, since some units may not be removed immediately (i.e. they have a death animation)
 
 # gx_is_unit_alive_and_constructed
 ```c
