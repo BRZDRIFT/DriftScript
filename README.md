@@ -25,6 +25,7 @@ int gx_get_sim_tick()
 ```
 - Returns the current sim tick number in simulation.
 - The first `gx_update` call will have tick = 1
+- The second `gx_update` call will have tick = 2, etc..
 - every tick corresponds to 50ms real time
 
 # gx_get_units
@@ -86,6 +87,7 @@ local numBrutesAtMyLocation = gx_get_unit_count({
     m_location="MyLocation"
 })
 
+gx_print(numBrutesAtMyLocation)
 ```
 
 - if `m_location` is not set, will return number of units on entire map
@@ -330,8 +332,6 @@ local someText = gx_encode_text("^23Rainbow Text")
 gx_print(someText)
 ```
 
-gx_print(numBrutesAtMyLocation)
-
 # BoundsCheck enum
 
 The BoundsCheck enum is used in unit search queries within locations
@@ -339,11 +339,29 @@ The BoundsCheck enum is used in unit search queries within locations
 ```c
 enum BoundsCheck
 {
-    Center = 0,     // Unit's center position is in location
-    Touching = 1,   // Unit is fully inside or touching location
-    Inside = 2      // Unit fully inside a location
+    Center = 1,     // Unit's center position is in location
+    Touching = 2,   // Unit is fully inside or touching location
+    Inside = 3      // Unit fully inside a location
 }
 ```
+- NOTE: Do not rely on enum values to remain the same.
+
+# UnitProps enum
+
+The UnitProps enum is used in `gx_get_unit_prop` and `gx_set_unit_prop`
+
+```c
+enum UnitProps
+{
+	MaxHealth = 1,
+	Health = 2,
+	MaxSpeed = 3,
+	Size = 4,
+	UnitType = 5
+}
+```
+- NOTE: Do not rely on enum values to remain the same.
+
 
 # gx_copy_ud
 
