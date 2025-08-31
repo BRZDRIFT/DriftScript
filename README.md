@@ -1,3 +1,9 @@
+# Drift Script
+Drift Script is a slightly modified version of Squirrel 3.2 language. \
+Please refer to the language reference manual here: \
+http://squirrel-lang.org/squirreldoc/reference/language.html
+
+
 # Units, Players, Teams, Locations, Unit Definitions, IDs...
 Integer IDs are used to represent `units`, `players`, `teams`, and other things.. \
 Invalid IDs are equal to 0. \
