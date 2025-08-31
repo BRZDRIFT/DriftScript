@@ -1,3 +1,9 @@
+# Units, Players, Teams, Locations, Unit Definitions, IDs...
+Integer IDs are used to represent `units`, `players`, `teams`, and other things.. \
+Invalid IDs are equal to 0. \
+Some objects such as `Locations` and `Unit Definitions` are identified with strings. \
+Invalid string identifiers are equal to an empty or null string.
+
 # gx_create_unit
 ```c
 int gx_create_unit(table params)
@@ -307,27 +313,6 @@ enum BoundsCheck
 ```
 - NOTE: Do not rely on enum values to remain the same.
 
-# UnitProps enum
-
-The UnitProps enum is used in `gx_get_unit_prop` and `gx_set_unit_prop`
-
-```c
-enum UnitProps
-{
-	MaxHealth = 1,  // Read-Only        (int)
-	Health = 2,     // Read / Write     (float)
-	MaxSpeed = 3,   // Read-Only        (float)
-	Size = 4,       // Read-Only        (float)
-	UnitType = 5,   // Read-Only        (string)
-    IsOnFire = 6    // Read-Only        (bool)
-    GetParentJeep = 7,          // Read-Only (int)
-	GetParentDropship = 8,      // Read-Only (int)
-	GetParentStarShip = 9,      // Read-Only (int)
-	GetParentSpinnerShip = 1    // Read-Only (int)
-}
-```
-- NOTE: Do not rely on enum values to remain the same.
-
 # PlayerProps enum
 
 The PlayerProps enum is used in `gx_get_player_prop` and `gx_set_player_prop`
@@ -558,19 +543,33 @@ Vec2 gx_get_location_prop(LocationProps.Size, string location)
 # gx_set_location_prop [overloads]
 - none currently
 
-# gx_get_unit_prop [overloads]
+# UnitProps enum
+
+The UnitProps enum is used in `gx_get_unit_prop` and `gx_set_unit_prop`
+
 ```c
-int gx_get_unit_prop(UnitProps.MaxHealth, int unit_id)
-float gx_get_unit_prop(UnitProps.Health, int unit_id)
-float gx_get_unit_prop(UnitProps.MaxSpeed, int unit_id)
-float gx_get_unit_prop(UnitProps.Size, int unit_id)
-string gx_get_unit_prop(UnitProps.UnitType, int unit_id)
-bool gx_get_unit_prop(UnitProps.IsOnFire, int unit_id)
-int gx_get_unit_prop(UnitProps.GetParentJeep, int unit_id)
-int gx_get_unit_prop(UnitProps.GetParentDropship, int unit_id)
-int gx_get_unit_prop(UnitProps.GetParentStarShip, int unit_id)
-int gx_get_unit_prop(UnitProps.GetParentSpinnerShip, int unit_id)
+enum UnitProps
+{
+	MaxHealth = 1,  // Read-Only        (int)
+	Health = 2,     // Read / Write     (float)
+	MaxSpeed = 3,   // Read-Only        (float)
+	Size = 4,       // Read-Only        (float)
+	UnitType = 5,   // Read-Only        (string)
+    IsOnFire = 6    // Read-Only        (bool)
+    GetParentJeep = 7,          // Read-Only (int)
+	GetParentDropship = 8,      // Read-Only (int)
+	GetParentStarShip = 9,      // Read-Only (int)
+	GetParentSpinnerShip = 10   // Read-Only (int)
+}
 ```
+
+# gx_get_unit_prop
+```c
+mixed gx_get_unit_prop(UnitProps prop, int unit_id)
+```
+
+- Refer to `UnitProps` enum for valid `UnitProps` and `return types`.
+- Only enums that have `Read` property can be used in this function
 
 Examples:
 ```c
@@ -590,10 +589,13 @@ local my_unit_health = gx_get_unit_prop(UnitProps.Health, my_unit_id)
 gx_print("my unit's health is " + my_unit_health)
 ```
 
-# gx_set_unit_prop [overloads]
+# gx_set_unit_prop
 ```c
-void gx_set_unit_prop(UnitProps.Health, int unit_id, float val)
+void gx_set_unit_prop(UnitProps prop, int unit_id, mixed val)
 ```
+
+- Refer to `UnitProps` enum for valid `UnitProps` and `type` vals.
+- Only enums that have `Write` property can be used in this function
 
 # get_get_unit_user_data
 ```c
