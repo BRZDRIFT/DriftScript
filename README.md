@@ -602,3 +602,64 @@ if (bUnitOnFire) {
 local my_unit_health = gx_get_unit_prop(UnitProps.Health, my_unit_id)
 gx_print("my unit's health is " + my_unit_health)
 ```
+
+# Game Event Queue
+
+Event Types:
+```c
+enum GameEventType
+{
+    Invalid = 0,
+    PlayerNameChanged = 1,
+    PlayerLeftGame = 2
+}
+```
+
+Event Structure:
+```c
+table GameEvent
+{
+    GameEventType m_type    // Always populated, specifies type of event
+    int m_playerID = {}
+    string m_oldPlayerName = {}
+    string m_playerName = {}
+}
+
+```
+
+- `GameEventType.Invalid` indicates event queue was empty when `gx_pop_event_from_queue()` was called.
+- `GameEventType.PlayerNameChanged` events populate `m_playerID`, `m_oldPlayerName`, and `m_playerName`
+- `GameEventType.PlayerLeftGame` events populate `m_playerID` of player that has left game.
+
+# gx_is_event_queue_empty
+```c
+bool gx_is_event_queue_empty()
+```
+
+# gx_pop_event_from_queue()
+```c
+GameEvent gx_pop_event_from_queue()
+```
+
+Example of reading events from queue
+
+```c
+function gx_update()
+{
+    while (!gx_is_event_queue_empty())
+    {
+        local ev = gx_pop_event_from_queue()
+        if (ev.m_type == GameEventType.PlayerLeftGame)
+        {
+            gx_print("Player " + ev.m_playerID + " has left the game!")
+        }
+        else if (ev.m_type == GameEventType.PlayerNameChanged)
+        {
+            gx_print(ev.m_oldPlayerName + " changed name to " + ev.m_playerName)
+        }
+    }
+
+    // do rest of game logic
+}
+
+```
