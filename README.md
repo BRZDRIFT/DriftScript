@@ -565,6 +565,7 @@ enum UnitProps
 	GetParentDropship = 8,      // Read-Only (int)
 	GetParentStarShip = 9,      // Read-Only (int)
 	GetParentSpinnerShip = 10   // Read-Only (int)
+    GetParentBunker = 11        // Read-Only (int)
 }
 ```
 
