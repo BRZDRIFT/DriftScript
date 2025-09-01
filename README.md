@@ -319,22 +319,6 @@ enum BoundsCheck
 ```
 - NOTE: Do not rely on enum values to remain the same.
 
-# PlayerProps enum
-
-The PlayerProps enum is used in `gx_get_player_prop` and `gx_set_player_prop`
-
-```c
-enum PlayerProps
-{
-	Fungus = 1,     // Read / Write     (float)
-	Gemstone = 2,   // Read / Write     (float)
-	Supply = 3,     // Read-Only        (int)
-	MaxSupply = 4,  // Read-Only        (int)
-	NumKills = 5,   // Read-Only        (int)
-	NumDeaths = 6   // Read-Only        (int)
-}
-```
-- NOTE: Do not rely on enum values to remain the same.
 
 # gx_copy_ud
 
@@ -416,20 +400,6 @@ table params = {
 
 - If neither `m_dir2d` nor `m_dir3d` is set, unit will be thrown in random direction
 - Only `m_dir2d` or `m_dir3d` should be set. Setting both is undefined behavior.
-
-# LocationProps enum
-```c
-enum LocationProps
-{
-	TopLeft = 1,        // Currently Read-Only
-	TopRight = 2,       // Currently Read-Only
-	BottomLeft = 3,     // Currently Read-Only
-	BottomRight = 4,    // Currently Read-Only
-	Center = 5,         // Currently Read-Only
-	Size = 6            // Currently Read-Only
-}
-```
-- Used in `gx_get_location_prop` and `gx_set_location_prop`
 
 # TerrainTypes enum
 ```c
@@ -513,40 +483,69 @@ local params = {
 }
 ```
 
-# gx_get_player_prop [overloads]
+# get_get_unit_user_data
 ```c
-float gx_get_player_prop(PlayerProps.Fungus, int playerID)
-float gx_get_player_prop(PlayerProps.Gemstone, int playerID)
-int gx_get_player_prop(PlayerProps.NumKills, int playerID)
-int gx_get_player_prop(PlayerProps.NumDeaths, int playerID)
-int gx_get_player_prop(PlayerProps.Supply, int playerID)
-int gx_get_player_prop(PlayerProps.MaxSupply, int playerID)
+table gx_get_unit_user_data(int unit_id)
 ```
 
-
-# gx_set_player_prop [overloads]
+Example:
 ```c
-void gx_get_player_prop(PlayerProps.Fungus, int playerID, float val)
-void gx_get_player_prop(PlayerProps.Gemstone, int playerID, float val)
+local myData = gx_get_unit_user_data(my_unit_id)
+myData["abc"] <- "haha"
 ```
 
-# gx_add_player_prop [overloads]
+# PlayerProps enum
+
+The PlayerProps enum is used in `gx_get_player_prop` and `gx_set_player_prop`
+
 ```c
-void gx_add_player_prop(PlayerProps.Fungus, int playerID, float val)
-void gx_add_player_prop(PlayerProps.Gemstone, int playerID, float val)
+enum PlayerProps
+{
+	Fungus = 1,         // Read / Write     (float)
+	Gemstone = 2,       / Read / Write     (float)
+	Supply = 3,         // Read-Only        (int)
+	MaxSupply = 4,      // Read-Only        (int)
+	NumKills = 5,       // Read-Only        (int)
+	NumDeaths = 6       // Read-Only        (int)
+    PlayerName = 7      // Read-Only        (string)
+}
 ```
 
-# gx_get_location_prop [overloads]
+# gx_get_player_prop
 ```c
-Vec2 gx_get_location_prop(LocationProps.TopLeft, string location)
-Vec2 gx_get_location_prop(LocationProps.TopRight, string location)
-Vec2 gx_get_location_prop(LocationProps.BottomLeft, string location)
-Vec2 gx_get_location_prop(LocationProps.BottomRight, string location)
-Vec2 gx_get_location_prop(LocationProps.Center, string location)
-Vec2 gx_get_location_prop(LocationProps.Size, string location)
+mixed gx_get_player_prop(PlayerProps prop, int playerID)
 ```
 
-# gx_set_location_prop [overloads]
+# gx_set_player_prop
+```c
+void gx_get_player_prop(PlayerProps prop, int playerID, mixed val)
+```
+
+# gx_add_player_prop
+```c
+void gx_add_player_prop(PlayerProps prop, int playerID, mixed val)
+```
+
+# LocationProps enum
+```c
+enum LocationProps
+{
+	TopLeft = 1,        // Currently Read-Only (vec2)
+	TopRight = 2,       // Currently Read-Only (vec2)
+	BottomLeft = 3,     // Currently Read-Only (vec2)
+	BottomRight = 4,    // Currently Read-Only (vec2)
+	Center = 5,         // Currently Read-Only (vec2)
+	Size = 6            // Currently Read-Only (vec2)
+}
+```
+- Used in `gx_get_location_prop` and `gx_set_location_prop`
+
+# gx_get_location_prop
+```c
+mixed gx_get_location_prop(LocationProps.TopLeft, string location)
+```
+
+# gx_set_location_prop
 - none currently
 
 # UnitProps enum
@@ -568,6 +567,14 @@ enum UnitProps
 	GetParentSpinnerShip = 10   // Read-Only (int)
 }
 ```
+
+# gx_set_unit_prop
+```c
+void gx_set_unit_prop(UnitProps prop, int unit_id, mixed val)
+```
+
+- Refer to `UnitProps` enum for valid `UnitProps` and `type` vals.
+- Only enums that have `Write` property can be used in this function
 
 # gx_get_unit_prop
 ```c
@@ -593,23 +600,4 @@ if (bUnitOnFire) {
 
 local my_unit_health = gx_get_unit_prop(UnitProps.Health, my_unit_id)
 gx_print("my unit's health is " + my_unit_health)
-```
-
-# gx_set_unit_prop
-```c
-void gx_set_unit_prop(UnitProps prop, int unit_id, mixed val)
-```
-
-- Refer to `UnitProps` enum for valid `UnitProps` and `type` vals.
-- Only enums that have `Write` property can be used in this function
-
-# get_get_unit_user_data
-```c
-table gx_get_unit_user_data(int unit_id)
-```
-
-Example:
-```c
-local myData = gx_get_unit_user_data(my_unit_id)
-myData["abc"] <- "haha"
 ```
