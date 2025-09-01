@@ -10,6 +10,23 @@ Invalid IDs are equal to 0. \
 Some objects such as `Locations` and `Unit Definitions` are identified with strings. \
 Invalid string identifiers are equal to an empty or null string.
 
+# Script Entry points
+Your script code has 3 entry points.
+
+`function gx_map_init()`
+- This is called before minimap creation.
+- This is the only place currently where you are allowed to modify and copy unit definitions (i.e. make your own units).
+- This function is only called once. Global variables defined in this script are not accessible from the `gx_sim_*` functions
+
+`function gx_sim_init()`
+- Called once when the game simulation is setup and ready.
+- This is where your initialization code goes.
+- Global variables defined here are accessible to `gx_sim_update`
+
+`function gx_sim_update()`
+- Called once every simulation update. This is where your main script code goes.
+- Global variables persist across `gx_sim_update` calls.
+
 # gx_create_unit
 ```c
 int gx_create_unit(table params)
@@ -36,8 +53,9 @@ local new_unit = gx_create_unit({ m_unitType = "Brute", m_playerID=1, m_location
 int gx_get_sim_tick()
 ```
 - Returns the current sim tick number in simulation.
-- The first `gx_update` call will have tick = 1
-- The second `gx_update` call will have tick = 2, etc..
+- The `gx_sim_init` call will have `tick = 0`
+- The first `gx_sim_update` call will have `tick = 1`
+- The second `gx_sim_update` call will have `tick = 2`, etc..
 - every tick corresponds to 50ms real time
 
 # gx_get_units
@@ -155,7 +173,7 @@ void gx_remove_unit(int unit_id)
 ```
 
 - marks the unit to be removed by game
-- `unit_id` will be removed from game before the next gx_update call
+- `unit_id` will be removed from game before the next `gx_sim_update` call
 - It is safe to call this function on already killed or removed units
 
 # gx_is_unit_removed
@@ -342,7 +360,7 @@ gx_copy_ud("Brute", "_BabyBrute")
 - `ud` is short for `unit_definition` 
 - this function can only be called in the `gx_map_init` stage
 - any attempt to call this outside of the `gx_map_init` will be ignored.
-- in the future, it should be possible to call this during `gx_update`
+- in the future, it should be possible to call this during `gx_sim_update`
 
 
 # gx_modify_ud_props
@@ -379,7 +397,7 @@ gx_modify_ud_props("_BabyBrute", {
 - `ud` is short for `unit_definition` 
 - this function can only be called in the `gx_map_init` stage
 - any attempt to call this outside of the `gx_map_init` will be ignored.
-- in the future, it should be possible to call this during `gx_update`
+- in the future, it should be possible to call this during `gx_sim_update`
 
 
 # gx_fling_unit
@@ -400,6 +418,44 @@ table params = {
 
 - If neither `m_dir2d` nor `m_dir3d` is set, unit will be thrown in random direction
 - Only `m_dir2d` or `m_dir3d` should be set. Setting both is undefined behavior.
+
+
+# gx_set_area_vision
+```c
+void gx_set_area_vision(int player_id, table params)
+```
+
+```c
+table params = {
+    string m_location = {},         // location to give or take away vision of (depending on m_bSet)
+    string m_triangleGroup = {},    // triangle group to give or take away vision of (depending on m_bSet)
+    bool m_bFullMapVision = {}      // If set to true, will give or take away vision of entire map (depending on m_bSet)
+    bool m_bSet = true              // If true gives vision, else takes away vision. (default: true)
+}
+```
+- This function gives or removes permanent vision of a `m_location`, `m_triangleGroup`, or `entire map`.
+- Only one of `m_location`, `m_triangleGroup`, or `m_bFullMapVision` should be set.
+- The only valid value of `m_bFullMapVision` is `true`. Setting to `false` is `undefined`.
+- If you want to give `Full Map Vision` to a player, set `m_bFullMapVision` to `true` and `m_bSet` to `true`.
+- If you want to remove `Full Map Vision` from a player, set `m_bFullMapVision` to `true` and `m_bSet` to `false`.
+- The value of `m_bSet` determines if vision is given or taken away from player.
+
+# gx_get_area_vision
+```c
+bool gx_get_area_vision(int player_id, table params)
+```
+
+```c
+table params = {
+    string m_location = {},         // location to query vision for
+    string m_triangleGroup = {},    // triangle group to query vision for
+    bool m_bFullMapVision = {}      // If set to true, queries if player has full map vision
+}
+```
+
+- This function queries if the player has permanent vision of a `location`, `triangleGroup`, or `entire map`.
+- Only one of `m_location`, `m_triangleGroup`, or `m_bFullMapVision` should be set.
+- The only valid value of `m_bFullMapVision` is `true`. Setting to `false` is `undefined`.
 
 # TerrainTypes enum
 ```c
@@ -502,12 +558,14 @@ The PlayerProps enum is used in `gx_get_player_prop` and `gx_set_player_prop`
 enum PlayerProps
 {
 	Fungus = 1,         // Read / Write     (float)
-	Gemstone = 2,       / Read / Write     (float)
+	Gemstone = 2,       // Read / Write     (float)
 	Supply = 3,         // Read-Only        (int)
 	MaxSupply = 4,      // Read-Only        (int)
 	NumKills = 5,       // Read-Only        (int)
 	NumDeaths = 6       // Read-Only        (int)
     PlayerName = 7      // Read-Only        (string)
+    AllMapVision = 8    // Read / Write     (bool)
+                        // When set to true, player is given vision of entire map
 }
 ```
 
@@ -569,6 +627,8 @@ enum UnitProps
 }
 ```
 
+- Setting `Health` to `<= 0` will cause unit to be set to `killed` state.
+
 # gx_set_unit_prop
 ```c
 void gx_set_unit_prop(UnitProps prop, int unit_id, mixed val)
@@ -603,33 +663,30 @@ local my_unit_health = gx_get_unit_prop(UnitProps.Health, my_unit_id)
 gx_print("my unit's health is " + my_unit_health)
 ```
 
-# Game Event Queue
+# Event Queue
 
 Event Types:
 ```c
-enum GameEventType
+enum EventType
 {
-    Invalid = 0,
-    PlayerNameChanged = 1,
-    PlayerLeftGame = 2
+    Invalid = 0,            // Populates no fields of the Event structure
+    PlayerNameChanged = 1,  // Populates m_playerID, m_oldPlayerName, m_playerName of the Event structure
+    PlayerLeftGame = 2      // Populates m_playerID of the Event structure
 }
 ```
 
 Event Structure:
 ```c
-table GameEvent
+table Event
 {
-    GameEventType m_type    // Always populated, specifies type of event
+    EventType m_type            // Always populated, specifies type of event
     int m_playerID = {}
     string m_oldPlayerName = {}
     string m_playerName = {}
 }
-
 ```
 
-- `GameEventType.Invalid` indicates event queue was empty when `gx_pop_event_from_queue()` was called.
-- `GameEventType.PlayerNameChanged` events populate `m_playerID`, `m_oldPlayerName`, and `m_playerName`
-- `GameEventType.PlayerLeftGame` events populate `m_playerID` of player that has left game.
+- Look at the comments in the definition of `EventType` enum to see which fields each `EventType` populates.
 
 # gx_is_event_queue_empty
 ```c
@@ -638,22 +695,22 @@ bool gx_is_event_queue_empty()
 
 # gx_pop_event_from_queue()
 ```c
-GameEvent gx_pop_event_from_queue()
+Event gx_pop_event_from_queue()
 ```
 
 Example of reading events from queue
 
 ```c
-function gx_update()
+function gx_sim_update()
 {
     while (!gx_is_event_queue_empty())
     {
         local ev = gx_pop_event_from_queue()
-        if (ev.m_type == GameEventType.PlayerLeftGame)
+        if (ev.m_type == EventType.PlayerLeftGame)
         {
             gx_print("Player " + ev.m_playerID + " has left the game!")
         }
-        else if (ev.m_type == GameEventType.PlayerNameChanged)
+        else if (ev.m_type == EventType.PlayerNameChanged)
         {
             gx_print(ev.m_oldPlayerName + " changed name to " + ev.m_playerName)
         }
@@ -661,5 +718,4 @@ function gx_update()
 
     // do rest of game logic
 }
-
 ```
