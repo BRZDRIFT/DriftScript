@@ -466,7 +466,7 @@ enum TerrainTypes
 	Glow = 1,           // valid secondary types are [0 - 31]
 	Water = 2,          // valid secondary types are [0 - 2]
 	Lava = 3,           // valid secondary types are [0 - 2]
-	Diamond = 4,        // valid secondary types is just 0 (TODO: verify, 1 might be valid as well)
+	Diamond = 4,        // valid secondary types is just 0
 	PlayerColor = 8,    // valid secondary types are [1 - 16] (i.e. player_id)
 	Unpassable = 9,     // !! Not a dynamic terrain type! Cannot dynamically change or be set to!
 	Space = 10,         // valid secondary type is just 0
@@ -506,7 +506,8 @@ table params = {
                                 // If index2 is not defined, entire square specified by m_index
                                 // will be set to terrain type (i.e. both triangles, top and bottom).
                                 // m_index and index2 are ignored if m_location is set.
-    string m_location = {}      // location to set terrain tile types.
+    string m_location = {}      // location to set terrain tile types.,
+    string m_triangleGroup = {} // triangle group to set terrian tile stype
 }
 ```
 
@@ -518,6 +519,15 @@ gx_set_terrain_type({
     m_location = "my_location"
 })
 ```
+
+- if only `m_index` is set, the square at `m_index` is set to terrain type (i.e. both bottom and top triangle)
+- if `m_location` is set, the triangles within the `m_location` are set to the new terrain type
+- if `m_triangleGroup` is set, the triangles within `m_triangleGroup` are set to the new terrain type
+- if `m_location` is set, it is `undefined behavior` to also set  `m_index`, `m_index2`, or `m_triangleGroup`
+- if `m_triangleGroup` is set, is it `undefined behavior` to also set `m_index`, `m_index2`, or `m_location`
+- if `m_index` is set, it is `undefined behavior` to also set `m_location`, and `m_triangleGroup`
+
+
 
 # gx_get_terrain_type
 ```c
@@ -564,7 +574,7 @@ enum PlayerProps
 	NumKills = 5,       // Read-Only        (int)
 	NumDeaths = 6       // Read-Only        (int)
     PlayerName = 7      // Read-Only        (string)
-    AllMapVision = 8    // Read / Write     (bool)
+    FullMapVision = 8   // Read / Write     (bool)
                         // When set to true, player is given vision of entire map
 }
 ```
