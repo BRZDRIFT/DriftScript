@@ -24,7 +24,7 @@ Your script code has 3 entry points.
 
 `function gx_map_init()`
 - This is called before minimap creation.
-- This is the only place currently where you are allowed to modify and copy unit definitions (i.e. make your own units).
+- This is the only place currently where you are allowed to modify and copy unit datas (i.e. make your own units).
 - This function is only called once. Global variables defined in this script are not accessible from the `gx_sim_*` functions
 
 `function gx_sim_init()`
@@ -572,6 +572,30 @@ local params = {
 - Moves camera of `player_id` to look at `m_unit` or `m_location`
 - One of `m_unit` or `m_location` should be set. Not both.
 
+# gx_lock_player_camera
+```c
+void gx_lock_player_camera(int player_id, table params = {})
+```
+
+```c
+local params = {
+    int m_unitID = {},
+    string m_location = {}
+}
+```
+
+- locks `player_id` camera to look at `m_unitID` or `m_location`.
+- camera will follow `m_unitID` or `m_location` until `m_unitID` is removed from game
+- can unlock camera by calling `gx_unlock_player_camera(player_id)`
+- passing empty args for `params` will unlock the camera for `player_id`.
+
+# gx_unlock_player_camera
+```c
+void gx_unlock_player_camera(int player_id)
+```
+
+- unlocks `player_id` camera position set by `gx_lock_player_camera`.
+- equivalent to calling `gx_lock_player_camera(player_id, {})`
 
 # get_get_unit_user_data
 ```c
