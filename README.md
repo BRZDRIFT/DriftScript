@@ -50,7 +50,7 @@ table params = {
 ```
 
 ```lua
-local new_unit = gx_create_unit({ m_unitType = "Brute", m_playerID=1, m_location = "my_cool_location" })
+local new_unit = gx_create_unit({ m_unitType = "Brute", m_playerID = 1, m_location = "my_cool_location" })
 ```
 
 - Will create unit of type `m_unitType` at position `m_position` or at location `m_location` for player `m_playerID`.
@@ -90,7 +90,7 @@ Example:
 local the_units = gx_get_units({
     m_location = "my_cool_location",
     m_unitType = "Brute",
-    m_playerID=1
+    m_playerID = 1
 })
 
 foreach (unit in the_units) {
