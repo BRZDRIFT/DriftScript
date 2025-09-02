@@ -485,8 +485,8 @@ table params = {
 enum TerrainTypes
 {
     Normal = 0,         // See SecondaryTerrainTypeNormal for valid secondary types
-	Water = 2,          // valid secondary types are [0 - 2]
-	Lava = 3,           // valid secondary types are [0 - 2]
+	Water = 2,          // valid secondary types are 0 and 2
+	Lava = 3,           // valid secondary types are 0 and 2
 	Diamond = 4,        // valid secondary types is just 0
     Glow = 6,           // valid secondary types are [0 - 31]
 	PlayerColor = 8,    // valid secondary types are [1 - 16] (i.e. player_id)
@@ -615,15 +615,16 @@ The PlayerProps enum is used in `gx_get_player_prop` and `gx_set_player_prop`
 ```c
 enum PlayerProps
 {
-	Fungus = 1,         // Read / Write     (float)
-	Gemstone = 2,       // Read / Write     (float)
-	Supply = 3,         // Read-Only        (int)
-	MaxSupply = 4,      // Read-Only        (int)
-	NumKills = 5,       // Read-Only        (int)
-	NumDeaths = 6       // Read-Only        (int)
-    PlayerName = 7      // Read-Only        (string)
-    FullMapVision = 8   // Read / Write     (bool)
-                        // When set to true, player is given vision of entire map
+	Fungus = 1,             // Read / Write     (float)
+	Gemstone = 2,           // Read / Write     (float)
+	Supply = 3,             // Read-Only        (int)
+	MaxSupply = 4,          // Read-Only        (int)
+	NumKills = 5,           // Read-Only        (int)
+	NumDeaths = 6           // Read-Only        (int)
+    PlayerName = 7          // Read-Only        (string)
+    FullMapVision = 8       // Read / Write     (bool)
+                            // When set to true, player is given vision of entire map
+    NumUnitsProduced = 9    // Read-Only        (int)
 }
 ```
 
