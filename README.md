@@ -11,6 +11,7 @@ Main differences from squirrel:
 
 Misc:
 - `int` types are signed 64-bit
+- encoding `utf-8`
 
 # Units, Players, Teams, Locations, Unit Definitions, IDs...
 Integer IDs are used to represent `Units`, `Players`, `Teams`, and other things.. \
