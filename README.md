@@ -3,12 +3,20 @@ Drift Script is a modified version of Squirrel 3.2 language. \
 Please refer to the language reference manual here: \
 http://squirrel-lang.org/squirreldoc/reference/language.html
 
+Main differences from squirrel:
+- `float` type internally modified to be a 64-bit `fixed` type.
+- `math` re-implemented
+- Changes to make table key,value iteration deterministic
+- Standard squirrel library is not supported
+
+Misc:
+- `int` types are signed 64-bit
 
 # Units, Players, Teams, Locations, Unit Definitions, IDs...
-Integer IDs are used to represent `units`, `players`, `teams`, and other things.. \
-Invalid IDs are equal to 0. \
-Some objects such as `Locations` and `Unit Definitions` are identified with strings. \
-Invalid string identifiers are equal to an empty or null string.
+Integer IDs are used to represent `Units`, `Players`, `Teams`, and other things.. \
+Invalid Integer IDs are equal to `0`. \
+String identifiers are used to represent `Locations`, `TriangleGroups`, `UnitDatas`, `UnitGroups` and other things.. \
+Invalid string identifiers are equal to `""`.
 
 # Script Entry points
 Your script code has 3 entry points.
@@ -340,7 +348,8 @@ enum BoundsCheck
 
 # gx_copy_ud
 
-Creates a copy of a `unit_definition`.\
+Creates a copy of a `unit_data`.\
+A `unit_data` serves as a 'definition' for a type of unit. \
 Required for creating new custom unit types.
 
 ```c
@@ -362,6 +371,18 @@ gx_copy_ud("Brute", "_BabyBrute")
 - any attempt to call this outside of the `gx_map_init` will be ignored.
 - in the future, it should be possible to call this during `gx_sim_update`
 
+# UnitDataType enum
+```c
+enum UnitDataType
+{
+    Invalid = "",
+    Myrmidon,
+    Chariot,
+    Brute,
+    Amputee,
+    Dungeon
+}
+```
 
 # gx_modify_ud_props
 ```c
@@ -463,10 +484,10 @@ table params = {
 enum TerrainTypes
 {
     Normal = 0,         // See SecondaryTerrainTypeNormal for valid secondary types
-	Glow = 1,           // valid secondary types are [0 - 31]
 	Water = 2,          // valid secondary types are [0 - 2]
 	Lava = 3,           // valid secondary types are [0 - 2]
 	Diamond = 4,        // valid secondary types is just 0
+    Glow = 6,           // valid secondary types are [0 - 31]
 	PlayerColor = 8,    // valid secondary types are [1 - 16] (i.e. player_id)
 	Unpassable = 9,     // !! Not a dynamic terrain type! Cannot dynamically change or be set to!
 	Space = 10,         // valid secondary type is just 0
@@ -537,17 +558,19 @@ Vec2 gx_get_terrain_type(Vec2 index, int index2 = 0)
 
 # gx_set_player_camera_look_at
 ```c
-void gx_set_camera_look_at(params = {})
+void gx_set_player_camera_look_at(int player_id, table params)
 ```
 
 ```c
 local params = {
-    int m_playerID = {},
-    int m_teamID = {},
     int m_unitID = {},
     string m_location = {}
 }
 ```
+
+- Moves camera of `player_id` to look at `m_unit` or `m_location`
+- One of `m_unit` or `m_location` should be set. Not both.
+
 
 # get_get_unit_user_data
 ```c
