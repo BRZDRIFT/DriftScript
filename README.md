@@ -8,6 +8,7 @@ Main differences from squirrel:
 - `math` re-implemented
 - Changes to make table key,value iteration deterministic
 - Standard squirrel library is not supported
+- Bunch of added built-in functions.
 
 Misc:
 - `int` types are signed 64-bit
@@ -35,6 +36,11 @@ Your script code has 3 entry points.
 `function gx_sim_update()`
 - Called once every simulation update. This is where your main script code goes.
 - Global variables persist across `gx_sim_update` calls.
+
+# gx_include
+`gx_include(string filename)`
+- Includes `filename` in current compilation.
+- A file is only included once by `gx_include`; subsequent calls are ignored.
 
 # gx_create_unit
 ```c
