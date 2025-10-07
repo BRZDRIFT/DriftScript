@@ -5,13 +5,14 @@ http://squirrel-lang.org/squirreldoc/reference/language.html
 
 Main differences from squirrel:
 - `float` type internally modified to be a 64-bit `fixed` type.
-- `math` re-implemented
 - Changes to make table key,value iteration deterministic
 - Standard squirrel library is not supported
-- Bunch of added built-in functions.
+- Custom math and other functions added
+- `gx_include` added to include external source files
 
 Misc:
 - `int` types are signed 64-bit
+- `float` types are 64-bit `Q31.32` fixed point types
 - encoding `utf-8`
 
 # Units, Players, Teams, Locations, Unit Definitions, IDs...
@@ -41,6 +42,20 @@ Your script code has 3 entry points.
 `gx_include(string filename)`
 - Includes `filename` in current compilation.
 - A file is only included once by `gx_include`; subsequent calls are ignored.
+
+# Supported math functions
+
+- `sqrt(x)` - returns square root of x
+- `sin(x)` - return sin of x
+- `cos(x)` - return cos of x
+- `tan(x)` - return tan of x
+- `rand()` - return random integer from [0, `RAND_MAX`]
+- `abs(x)` - return absolute value of x.
+- `min(x, y)` - returns the minimum of x and y.
+- `max(x, y)` - returns the maximum of x and y.
+- `clamp(val, min, max)` - clamps `val` to be between `min` and `max`
+- `RAND_MAX` - Constant value that is set to `0xFFFFFFFF` (do not rely on this staying the same)
+- `PI` - Constant value to represent PI (3.14159...)
 
 # gx_create_unit
 ```c
@@ -80,7 +95,7 @@ int[] gx_get_units(table params)
 ```c
 table params = {
     int m_playerID = {},                            // Optional, Filter for player_id
-    int m_teamID = {},                              // Optional, Filter for team_id
+    int m_forceID = {},                              // Optional, Filter for force_id
     string m_unitType = {}                          // Optional, Filter for unit type
     string m_location = {},                         // Optional, location to get units from
     BoundsCheck m_boundsCheck = BoundsCheck.Center  // Optional, used if m_location is set. (default = Center)
@@ -113,7 +128,7 @@ int gx_get_unit_count(table params)
 ```c
 table params = {
     int m_playerID = {},                            // Optional, filter by player_id
-    int m_teamID = {},                              // Optional, filter by team_id
+    int m_forceID = {},                              // Optional, filter by force_id
     string m_unitType = {},                         // Optional, filter by unit_type
     string m_location = {},                         // Optional, only return units within specified location
     BoundsCheck m_boundsCheck = BoundsCheck.Center  // Optional, used only if m_location is set (default: Center)
@@ -173,6 +188,25 @@ void gx_kill_unit(int unit_id)
 
 - kills the unit `unit_id`.
 - It is safe to call this function on already killed units
+
+# gx_get_kills
+```c
+void gx_get_kills(int player_id, table params = {})
+```
+```
+params = {
+    m_playerID = {},
+    m_bAlliedKills = {},
+    m_bSelfKills = {},
+    m_bNonAlliedKills = {},
+}
+```
+
+- if `m_playerID` is set, none of `m_bAlliedKills`, `m_bSelfKills`, `m_bNonAlliedKills` should be set
+- if empty {} is passed in for params, all kills will be returned, equivalent to: \
+```{ m_bAlliedKills = true, m_bSelfKills = rue, m_bNonAlliedKills = true }```
+- Allied kills does not include self kills
+
 
 # gx_is_unit_killed
 ```c
@@ -249,6 +283,7 @@ gx_set_unit_position(some_unit, { m_location = "location_to_teleport_to" } )
 - it is undefined to set both `m_location` and `m_pos2d`
 - if neither is defined, unit will be teleported to Vec2(0, 0)
 
+
 # gx_is_ground_unit
 ```c
 bool gx_is_ground_unit(int unit_id)
@@ -267,11 +302,35 @@ bool gx_is_air_unit(int unit_id)
 - note: knock-back effect can cause `ground` units to temporarily become `air` units
 - equivalent to calling `!gx_is_ground_unit(unit_id)`
 
+# gx_get_players
+```c
+int[] gx_get_players(table params = {})
+```
+
+```c
+table params = {
+	bool m_bIncludeNormalPlayers = true;
+	bool m_bIncludeDefeatedPlayers = false;
+	bool m_bIncludeNeutralPlayer = false;
+	bool m_bIncludeRescuePlayer = false;
+	bool m_bIncludeHostilePlayer = false;
+	bool m_bPlayerMustBeInGame = true;
+}
+```
+
+
 # gx_get_player
 ```c
 int gx_get_player(int unit_id)
 ```
 - returns the `player_id` for unit `unit_id`
+
+```c
+table params = {
+    int m_forceID = {},      // Optional, send message to only force_id
+    int m_playerID = {}     // Optional, send message to only player_id
+}
+```
 
 # gx_print
 ```c
@@ -280,10 +339,11 @@ void gx_print(string message, table params = {})
 
 ```c
 table params = {
-    int m_teamID = {},      // Optional, send message to only team_id
+    int m_forceID = {},      // Optional, send message to only force_id
     int m_playerID = {}     // Optional, send message to only player_id
 }
 ```
+- Should only set `m_forceID` or `m_playerID`, it is undefined to set both.
 
 Example
 ```c
@@ -300,13 +360,13 @@ void gx_set_victory(table params)
 
 ```c
 table params = {
-    int m_playerID = {},    // Ignored in team games
-    int m_teamID = {}       // Ignored in non-team games
+    int m_playerID = {},
+    int m_forceID = {}
 }
 ```
-- `m_playerID` is ignored in team games.
-- `m_teamID` is ignored in non-team games
 - once a player or team is set to `victory`, future calls to `gx_set_victory`/`gx_set_defeat` for that player/team will be ignored
+- should only set one of `m_playerID` or `m_forceID`, setting both is undefined
+- setting `m_forceID` will set victory for all players within that force
 
 # gx_set_defeat
 ```c
@@ -315,16 +375,15 @@ void gx_set_defeat(table params)
 
 ```c
 table params = {
-    int m_playerID = {},            // Ignored in team games
-    int m_teamID = {},              // Ignored in non-team games
+    int m_playerID = {},
+    int m_forceID = {},
     bool m_bKillAllUnits = true     // Optional, (default true)
 }
 ```
-- `m_playerID` is ignored in team games.
-- `m_teamID` is ignored in non-team games
 - if `m_bKillAllUnits` is `true`, all units for player (or team) will be killed.
 - once a player or team is set to `defeat`, future calls to `gx_set_victory`/`gx_set_defeat` for that player/team will be ignored
-
+- should only set one of `m_playerID` or `m_forceID`, setting both is undefined
+- setting `m_forceID` will set defeat for all players within that force
 
 # gx_encode_text
 ```c
@@ -402,7 +461,11 @@ table params = {
     int m_maxHealth = {},           // Optional, set max health
     float m_maxSpeed = {},          // Optional, set max speed
     int m_baseArmor = {},           // Optional, sets base armor
-    int m_size = {}                 // Optional, set unit size
+    int m_size = {}                 // Optional, set unit size,
+    int m_gemstoneCost = {},
+    int m_fungusCost = {},
+    int m_supplyCost = {},
+    int m_buildTime = {}
 }
 ```
 The example below creates a new type of unit called "_BabyBrute".\
@@ -427,6 +490,47 @@ gx_modify_ud_props("_BabyBrute", {
 - any attempt to call this outside of the `gx_map_init` will be ignored.
 - in the future, it should be possible to call this during `gx_sim_update`
 
+# gx_add_build_structure_item
+```c
+void gx_add_build_structure_item(string unitType, table params = {})
+```
+```
+table params = {
+    string m_structure = {},    // name of structure to build, i.e. "Microwave"
+    Vec2 m_position = {},           // position in command card to place at, leaving empty will use default
+    bool bBuildAdvanced = false     // default is false, if set to True, will be placed in 'build advanced' tab
+}
+```
+
+# gx_remove_all_build_structure_items
+```c
+void gx_remove_all_build_structure_items(string unitType)
+```
+
+- Remove all build structure items from worker
+
+# gx_add_build_item
+```c
+void gx_add_build_item(string unitType, table params)
+```
+
+```c
+table params = {
+    string m_unitType = {},     // unit type to add
+    string m_research ={},      // research to add
+    string m_position = {}      // position in command card
+}
+```
+- Only one `m_unitType` or `m_research` should be set
+
+- Remove all build items from structure
+
+# gx_remove_all_build_items
+```c
+void gx_remove_all_build_items(string unitType)
+```
+
+- Remove all build items from structure
 
 # gx_fling_unit
 
@@ -626,11 +730,18 @@ enum PlayerProps
 	Supply = 3,             // Read-Only        (int)
 	MaxSupply = 4,          // Read-Only        (int)
 	NumKills = 5,           // Read-Only        (int)
-	NumDeaths = 6           // Read-Only        (int)
-    PlayerName = 7          // Read-Only        (string)
-    FullMapVision = 8       // Read / Write     (bool)
+	NumDeaths = 6,          // Read-Only        (int)
+    PlayerName = 7,         // Read-Only        (string)
+    FullMapVision = 8,      // Read / Write     (bool)
                             // When set to true, player is given vision of entire map
-    NumUnitsProduced = 9    // Read-Only        (int)
+    NumUnitsProduced = 9,   // Read-Only        (int)
+    TagID = 10,             // Read-Only        (int)
+    ChoseRandom = 11,       // Read-Only        (bool)
+    Race = 12               // Read-Only        (int)
+    WeaponsLevel = 13       // Read-Write       (int)
+    ArmorLevel = 14         // Read-Write       (int)
+    SpeedLevel = 15         // Read-Write       (int) (not implemented atm)
+    StartLocationPosition = 16  // Read         (vec2) (not implemented atm)
 }
 ```
 
@@ -641,7 +752,7 @@ mixed gx_get_player_prop(PlayerProps prop, int playerID)
 
 # gx_set_player_prop
 ```c
-void gx_get_player_prop(PlayerProps prop, int playerID, mixed val)
+void gx_set_player_prop(PlayerProps prop, int playerID, mixed val)
 ```
 
 # gx_add_player_prop
@@ -671,6 +782,22 @@ mixed gx_get_location_prop(LocationProps.TopLeft, string location)
 # gx_set_location_prop
 - none currently
 
+# GunShipState enum
+```
+enum GunShipState
+{
+    Normal = 0,
+    StarShot = 1,
+    BigGunLevel1 = 2
+    BigGunLevel2 = 3,
+    ChainGunLevel1 = 4,
+    ChainGunLevel2 = 5
+}
+```
+- to be used with `gx_set_unit_prop` and `gx_get_unit_prop`
+- `gx_set_unit_prop(unit_id, UnitProps.GunShipState, GunShipState.ChainGunLevel2)`
+- the above would give a gunship two chainguns
+
 # UnitProps enum
 
 The UnitProps enum is used in `gx_get_unit_prop` and `gx_set_unit_prop`
@@ -688,7 +815,8 @@ enum UnitProps
 	GetParentDropship = 8,      // Read-Only (int)
 	GetParentStarShip = 9,      // Read-Only (int)
 	GetParentSpinnerShip = 10   // Read-Only (int)
-    GetParentBunker = 11        // Read-Only (int)
+    GetParentBunker = 11        // Read-Only (int),
+    GunShipState = 12           // Read-Write (GunShipState enum)
 }
 ```
 
@@ -727,6 +855,49 @@ if (bUnitOnFire) {
 local my_unit_health = gx_get_unit_prop(UnitProps.Health, my_unit_id)
 gx_print("my unit's health is " + my_unit_health)
 ```
+# gx_set_player_variable
+```c
+void gx_set_player_variable(int playerID, string varName, mixed varValue)
+```
+- Valid Types for `varValue` are (int, float, string)
+
+# gx_get_player_variable
+```c
+mixed gx_get_player_variable(int playerID, string varName)
+```
+
+# gx_set_unit_variable
+```c
+void gx_set_unit_variable(int unitID, string varName, mixed varValue)
+```
+- Valid Types for `varValue` are (int, float, string)
+
+# gx_get_unit_variable
+```c
+mixed gx_get_unit_variable(int unitID, string varName)
+```
+
+# gx_set_force_variable
+```c
+void gx_set_force_variable(int forceID, string varName, mixed varValue)
+```
+- Valid Types for `varValue` are (int, float, string)
+
+# gx_get_force_variable
+```c
+mixed gx_get_force_variable(int forceID, string varName)
+```
+
+# gx_set_sim_variable
+```c
+void gx_set_sim_variable(string varName, mixed varValue)
+```
+- Valid Types for `varValue` are (int, float, string)
+
+# gx_get_sim_variable
+```c
+mixed gx_get_sim_variable(string varName)
+```
 
 # Event Queue
 
@@ -734,9 +905,10 @@ Event Types:
 ```c
 enum EventType
 {
-    Invalid = 0,            // Populates no fields of the Event structure
-    PlayerNameChanged = 1,  // Populates m_playerID, m_oldPlayerName, m_playerName of the Event structure
-    PlayerLeftGame = 2      // Populates m_playerID of the Event structure
+    Invalid = 0,            // Invalid Event
+    PlayerNameChanged = 1,  // Populates m_playerID, m_playerName, and m_oldPlayerName of the Event structure
+    PlayerLeftGame = 2,     // Populates m_playerID, and m_playerName of the Event structure
+    TextCommand             // Populates m_playerID, m_playerName, and m_cmd of Event structure
 }
 ```
 
@@ -744,10 +916,11 @@ Event Structure:
 ```c
 table Event
 {
-    EventType m_type            // Always populated, specifies type of event
+    EventType m_type        // Always populated, specifies type of event.
     int m_playerID = {}
-    string m_oldPlayerName = {}
     string m_playerName = {}
+    string m_oldPlayerName = {}
+    string m_cmd = {}
 }
 ```
 
