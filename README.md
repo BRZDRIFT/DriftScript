@@ -94,10 +94,11 @@ int[] gx_get_units(table params)
 ```
 ```c
 table params = {
-    int m_playerID = {},                            // Optional, Filter for player_id
-    int m_forceID = {},                              // Optional, Filter for force_id
-    string m_unitType = {}                          // Optional, Filter for unit type
-    string m_location = {},                         // Optional, location to get units from
+    int m_playerIDs[],                              // Optional, Filter for player_id
+    int m_forceIDs[],                               // Optional, Filter for force_id
+    string m_unitTypes[],                           // Optional, Filter for certain unit types
+    string m_exceptUnitTypes[],                     // Optional, ignore certain unit types
+    string m_locations[],                           // Optional, locations to get units from
     BoundsCheck m_boundsCheck = BoundsCheck.Center  // Optional, used if m_location is set. (default = Center)
     bool m_bIncludeAirUnits = true,                 // Optional, Set to false if you want to exclude air units
     bool m_bIncludeGroundUnits = true               // Optional, set to false if you want to exclude ground units
@@ -163,7 +164,7 @@ table params = {
     float m_size = {},              // Optional, Diameter of explosion
     Vec3 m_color = Vec3(1,1,0)      // Optional, ColorSRGB of explosion.
     string m_location = {},         // Optional, Location for explosion
-    Vec2 m_pos2d = {}               // Optional, Position for explosion
+    Vec2 m_pos = {}               // Optional, Position for explosion
 }
 ```
 
@@ -175,9 +176,9 @@ gx_create_explosion( {
 } )
 ```
 
-- it is undefined behavior to set both `m_location` and `m_pos2d`
+- it is undefined behavior to set both `m_location` and `m_pos`
 - if `m_size` is not set and `m_location` is set, the resolved size will be the minimum width/height of `m_location`
-- if `m_size` is not set and `m_pos2d` is set, the resolved size will be `1`
+- if `m_size` is not set and `m_pos` is set, the resolved size will be `1`
 - Explosions are purely visual. They do not do any damage.
 - Default value for `m_color` is `Vec3(1,1,0)` aka `0xFFFF00` (yellow)
 
@@ -272,7 +273,6 @@ void gx_set_unit_position(int unit_id, table params)
 ```c
 table params = {
     string m_location = {},     // Optional, location to put unit
-    Vec2 m_pos2d = {}           // Optional, position to put unit
 }
 ```
 Example:
@@ -280,7 +280,7 @@ Example:
 gx_set_unit_position(some_unit, { m_location = "location_to_teleport_to" } )
 ```
 
-- it is undefined to set both `m_location` and `m_pos2d`
+- it is undefined to set both `m_location` and `m_pos`
 - if neither is defined, unit will be teleported to Vec2(0, 0)
 
 
@@ -797,6 +797,38 @@ enum GunShipState
 - to be used with `gx_set_unit_prop` and `gx_get_unit_prop`
 - `gx_set_unit_prop(unit_id, UnitProps.GunShipState, GunShipState.ChainGunLevel2)`
 - the above would give a gunship two chainguns
+
+# CommandType enum
+```c
+enum CommandType : string
+{
+    Attack,             // valid params: [m_unitID, m_location, m_pos]
+    Move,               // valid params: [m_unitID, m_location, m_pos]
+    Hold,               // valid params: []
+    Stop                // valid params: []
+    RightClick          // valid params: [m_unitID, m_location, m_pos]
+}
+```
+- `CommandType` enums that are meant to be used with `gx_queue_command`
+- more to be added later
+
+# gx_queue_command
+```c
+gx_queue_command(int unit_ids[], CommandType command, table params = {})
+```
+
+```c
+table params = {
+    int m_unitID,            // unit to target
+    string m_location = {},     // location to target
+    string m_pos = {},          // position to target
+}
+```
+
+- only one (or zero) unit_id, m_location, m_pos should be set
+- some commands/spells only work when certain params are set
+- (i.e., a spell that can only target units cannot target a `m_pos` or `m_location`)
+- `CommandType` can also be a spell identifier
 
 # UnitProps enum
 
